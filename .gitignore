@@ -2,3 +2,4 @@
 .project
 bin/
 sesionData.bin
+*.class
