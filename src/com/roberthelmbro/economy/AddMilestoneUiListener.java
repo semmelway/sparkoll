@@ -1,3 +1,6 @@
+/**
+ * @author Robert Helmbro
+ */
 package com.roberthelmbro.economy;
 
 import java.util.Calendar;

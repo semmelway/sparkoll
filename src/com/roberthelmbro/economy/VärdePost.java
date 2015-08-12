@@ -250,7 +250,7 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 		{	
 			Calendar dateOne=       ((Happening)  happeningsInRange.elementAt(q)     ).getDate()     ; 
 			Calendar dateTwo	= date;
-			//variabel=variabel+v�rde�ndring*x^tiden
+			//variabel=variabel+värdeändring*x^tiden
 			variabel=variabel+  ((happeningsInRange.elementAt(q)).getAmount())*(Math.pow( x ,(double)getNumberOfDays(dateOne,dateTwo))) ;
 		}	
 		return variabel-value;

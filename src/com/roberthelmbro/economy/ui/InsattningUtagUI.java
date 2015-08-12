@@ -1,4 +1,7 @@
 package com.roberthelmbro.economy.ui;
+/**
+ * @author Robert Helmbro
+ */
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,9 +28,8 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 		static final long serialVersionUID = 0;
 		
 		KalkylUI kalkyl; 
-		
 				
-		//Lablar
+		// Labels
 		private JLabel insattningL = new JLabel("Insättning");
 		private JLabel utagL= new JLabel("Utag");		
 		private JLabel benamningL = new JLabel("Benämning");
@@ -36,16 +38,16 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 		private JLabel kommentarL = new JLabel("Kommentar");
 		private JLabel meddelandeL = new JLabel("Meddelande");
 		
-		//RadioButtons
+		// RadioButtons
 		private ButtonGroup insUtagSel = new ButtonGroup();
 		private JRadioButton insattningR = new JRadioButton(); 
 		private JRadioButton utagR = new JRadioButton();
 		
-		//knappar
-		private JButton sparastangB = new JButton("Spara och stang");
+		// Buttons
+		private JButton sparastangB = new JButton("Spara och stäng");
 		private JButton avbrytB = new JButton("Avbryt");
 			
-		//textf�lt
+		// TextFields
 		private JTextField benomningT=new JTextField();
 		private JTextField beloppT=new JTextField();
 		private JTextField datumT=new JTextField();
@@ -59,10 +61,6 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 		
 		int ltY = 30;
 		
-		
-		
-		
-		
 		public InsattningUtagUI(KalkylUI k,String klickadPost) throws IOException ,ClassNotFoundException
 		{
 			kalkyl=k;	
@@ -72,7 +70,7 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 			c.setLayout(null);
 			setSize(600,300);
 		
-			//****************Lablar********
+			// ****************Labels********
 			
 			
 			c.add(insattningL);
@@ -96,7 +94,7 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 			c.add(meddelandeL);
 			meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+6*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
 			
-			//****************knappar****************
+			// ****************Buttons****************
 			c.add(avbrytB);
 			avbrytB.setBounds(fonsterBredd/2-3*ltBredd/2-ltDist,ltY+7*(ltHojd+ltDist),ltBredd,ltHojd);
 			avbrytB.addActionListener(this);
@@ -105,7 +103,7 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 			sparastangB.setBounds(fonsterBredd/2+ltBredd/2+ltDist,ltY+7*(ltHojd+ltDist),ltBredd,ltHojd);
 			sparastangB.addActionListener(this);
 			
-			//****************Radio Buttons************
+			// ****************Radio Buttons************
 			insUtagSel.add(insattningR);
 			c.add(insattningR);
 			insattningR.addActionListener(this);
@@ -116,7 +114,7 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 			utagR.addActionListener(this);
 			utagR.setBounds(fonsterBredd/2, ltY+1*(ltHojd+ltDist), 20, 20);
 			
-			//****************textf�lt****************
+			// ****************textfields****************
 			c.add(benomningT);
 			benomningT.setBounds(fonsterBredd/2+ltDist,ltY+2*(ltHojd+ltDist),ltBredd,ltHojd);
 			benomningT.setText(klickadPost);
@@ -154,7 +152,7 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 					return;
 				}
 				else{
-					meddelandeL.setText("Du m�ste ange ins�ttning eller utag.");
+					meddelandeL.setText("Du måste ange insättning eller utag.");
 			}
 			
 			}					
@@ -169,12 +167,12 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 				return;
 			}
 			if(kalkyl.kollaGruppNamn(benomningT.getText())){
-				meddelandeL.setText("Du m�ste ange korrekt gruppnamn.");
+				meddelandeL.setText("Du måste ange korrekt gruppnamn.");
 				return;
 			}
 								
 			kalkyl.ins(benomningT.getText(),ParseUtil.parseDouble(beloppT.getText()),CalendarUtil.parseString(datumT.getText()),kommentarT.getText());	
-			meddelandeL.setText("Ins�ttning sparad.");
+			meddelandeL.setText("Insättning sparad.");
 			if(stang)
 				this.setVisible(!stang);
 		}	
@@ -190,7 +188,7 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 				return;
 			}
 			if(kalkyl.kollaGruppNamn(benomningT.getText())){
-				meddelandeL.setText("Du m�ste ange korrekt gruppnamn.");
+				meddelandeL.setText("Du måste ange korrekt gruppnamn.");
 				return;
 			}		
 		

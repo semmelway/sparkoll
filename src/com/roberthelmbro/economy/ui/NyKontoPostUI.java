@@ -20,19 +20,19 @@ public class NyKontoPostUI extends JFrame implements ActionListener {
 	KalkylUI kalkyl; 
 	
 	
-	//Lablar
+	// Labels
 	private JLabel namnL = new JLabel("Namn");
 	private JLabel beloppL= new JLabel("Startvärde");		
 	private JLabel datumL= new JLabel("Datum(åååå-mm-dd)");
 	private JLabel gruppL = new JLabel("Grupp");
 	private JLabel meddelandeL = new JLabel("Meddelande");
 	
-	//knappar
+	// Buttons
 	private JButton sparaStangB = new JButton("Spara och stäng");
 	private JButton avbrytB = new JButton("Avbryt");
 	private JButton sparaB = new JButton("Spara");
 		
-	//textf�lt
+	// Text Fields
 	private JTextField namnT = new JTextField();
 	private JTextField beloppT=new JTextField();
 	private JTextField datumT=new JTextField();
@@ -56,7 +56,7 @@ public class NyKontoPostUI extends JFrame implements ActionListener {
 		c.setLayout(null);
 		setSize(600,300);
 	
-		//****************Lablar********
+		//**************** Labels ********
 		
 		
 		c.add(namnL);
@@ -73,7 +73,7 @@ public class NyKontoPostUI extends JFrame implements ActionListener {
 		
 		c.add(meddelandeL);
 		meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+4*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
-		//****************knappar****************
+		// **************** Buttons ****************
 		c.add(sparaB);
 		sparaB.setBounds(fonsterBredd/2-ltBredd/2,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
 		sparaB.addActionListener(this);
@@ -86,7 +86,7 @@ public class NyKontoPostUI extends JFrame implements ActionListener {
 		sparaStangB.setBounds(fonsterBredd/2+ltBredd/2+ltDist,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
 		sparaStangB.addActionListener(this);
 		
-		//****************textf�lt****************
+		//**************** Text Fields ****************
 		c.add(namnT);
 		namnT.setBounds(fonsterBredd/2+ltDist,ltY+0*(ltHojd+ltDist),ltBredd,ltHojd);
 		
@@ -116,12 +116,12 @@ public class NyKontoPostUI extends JFrame implements ActionListener {
 		if(e.getSource()==sparaStangB){
 			
 			if(((String)namnT.getText()).length()==0)
-			{	meddelandeL.setText("Du m�ste ange ett namn");
+			{	meddelandeL.setText("Du måste ange ett namn");
 				return ;
 			}
 			
 			if(kalkyl.finsPost(namnT.getText())){
-				meddelandeL.setText("Namnet m�ste vara unikt");
+				meddelandeL.setText("Namnet måste vara unikt");
 				return;
 			}
 

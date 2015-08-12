@@ -1,6 +1,6 @@
 package com.roberthelmbro.economy;
 /**
- * @author Robert Helmbo
+ * @author Robert Helmbro
  * @year 2012
  */
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class RawMaterialPost extends VärdePost
 		value = this.price*this.weight;
 		
 		happenings = new Vector<Happening>();
-		Happening temp = new Happening(date,this.price*this.weight,"K�p");
+		Happening temp = new Happening(date,this.price*this.weight,"Köp");
 		happenings.addElement(temp);
 	}
 	//funktioner

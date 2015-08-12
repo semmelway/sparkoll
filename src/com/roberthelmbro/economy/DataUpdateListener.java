@@ -1,5 +1,7 @@
 package com.roberthelmbro.economy;
-
+/**
+ * @author Robert Helmbro
+ */
 import java.util.Calendar;
 
 public interface DataUpdateListener {

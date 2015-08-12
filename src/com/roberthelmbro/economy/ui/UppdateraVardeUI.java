@@ -34,7 +34,7 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 	double amount = 0;
 	
 	
-	//Lablar
+	// Labels
 	private JLabel namnL = new JLabel("Ange nytt värde för ");	
 	private JLabel datumL= new JLabel("Datum(åååå-mm-dd)");
 	private JLabel interestL = new JLabel("Ränta");
@@ -43,12 +43,12 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 	
 	private JLabel earnedL = new JLabel("***********");
 	
-	//knappar
+	// Buttons
 	private JButton avbrytB = new JButton("Avbryt");
 	private JButton sparaB = new JButton("Spara");
 	private JButton updateAndSaveB = new JButton("Plussa och spara");
 		
-	//textf�lt
+	// Text Fields
 	private JTextField datumT=new JTextField();
 	private JTextField beloppT=new JTextField();
 	private JTextField interestT = new JTextField();
@@ -71,7 +71,7 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 		c.setLayout(null);
 		setSize(800,300);
 	
-		//****************Lablar********
+		//**************** Labels ********
 		
 		
 		c.add(namnL);
@@ -93,7 +93,7 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 		
 		c.add(meddelandeL);
 		meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+5*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
-		//****************knappar****************
+		// **************** Buttons ****************
 		c.add(sparaB);
 		sparaB.setBounds(fonsterBredd/2-ltBredd/2,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
 		sparaB.addActionListener(this);
@@ -107,7 +107,7 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 		updateAndSaveB.addActionListener(this);
 		
 		
-		//****************textf�lt****************
+		//**************** Text Fields ****************
 
 		c.add(datumT);
 		datumT.setBounds(fonsterBredd/2+ltDist,ltY+1*(ltHojd+ltDist),ltBredd,ltHojd);

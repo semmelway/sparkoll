@@ -1,3 +1,6 @@
+/**
+ * @author Robert Helmbro
+ */
 package com.roberthelmbro.util;
 
 public class ParseUtil {

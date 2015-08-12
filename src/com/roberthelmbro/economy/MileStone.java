@@ -1,5 +1,7 @@
 package com.roberthelmbro.economy;
-
+/**
+ * @author Robert Helmbro
+ */
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.GregorianCalendar;

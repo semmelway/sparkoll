@@ -1,5 +1,7 @@
 package com.roberthelmbro.economy.ui;
-
+/**
+ * @author Robert Helmbro
+ */
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,17 +21,17 @@ public class AddMilestoneUI extends JFrame implements ActionListener{
 	
 	private AddMilestoneUiListener listener;
 	
-	//Lablar
+	// Labels
 	private JLabel namnL = new JLabel("Ange nytt värde för ");	
 	private JLabel datumL= new JLabel("Datum(åååå-mm-dd)");
 	private JLabel beloppL = new JLabel("Värde");
 	private JLabel meddelandeL = new JLabel("Meddelande");
 	
-	//knappar
+	// Buttons
 	private JButton avbrytB = new JButton("Avbryt");
 	private JButton sparaB = new JButton("Ok");
 		
-	//textfält
+	// Text Fields
 	private JTextField datumT=new JTextField();
 	private JTextField beloppT=new JTextField();
 	
@@ -50,7 +52,7 @@ public class AddMilestoneUI extends JFrame implements ActionListener{
 		c.setLayout(null);
 		setSize(600,300);
 	
-		//****************Lablar********
+		// **************** Labels ********
 		
 		
 		c.add(namnL);
@@ -65,7 +67,7 @@ public class AddMilestoneUI extends JFrame implements ActionListener{
 		
 		c.add(meddelandeL);
 		meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+3*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
-		//****************knappar****************
+		// **************** Buttons ****************
 		c.add(sparaB);
 		sparaB.setBounds(fonsterBredd/2-ltBredd/2,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
 		sparaB.addActionListener(this);
@@ -75,7 +77,7 @@ public class AddMilestoneUI extends JFrame implements ActionListener{
 		avbrytB.addActionListener(this);
 		
 		
-		//****************textfält****************
+		// ****************textfält****************
 
 		c.add(datumT);
 		datumT.setBounds(fonsterBredd/2+ltDist,ltY+1*(ltHojd+ltDist),ltBredd,ltHojd);

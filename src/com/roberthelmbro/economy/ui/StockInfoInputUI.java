@@ -32,20 +32,20 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 	StockInfoInputUiListener resultListener; 
 	AktiePost stock;
 	
-	//Lablar
+	// Labels
 	private JLabel nameL = new JLabel("Namn");
 	private JLabel antalL= new JLabel("Antal");		
 	private JLabel priceL = new JLabel("Kurs");
-	private JLabel datumL= new JLabel("Datum(����-mm-dd)");
+	private JLabel datumL= new JLabel("Datum(åååå-mm-dd)");
 	private JLabel urlL= new JLabel("UppdateringsURL");
 	private JLabel gruppL = new JLabel("Grupp");
 	private JLabel meddelandeL = new JLabel("Meddelande");
 	
-	//knappar
+	// Buttons
 	private JButton sparaStangB = new JButton("Spara och stäng");
 	private JButton avbrytB = new JButton("Avbryt");
 		
-	//textf�lt
+	// Text Fields
 	private JTextField namnT = new JTextField();
 	private JTextField antalT = new JTextField();
 	private JTextField priceT=new JTextField();
@@ -85,7 +85,7 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 	}
 	
 	private void setUpUI(String name, int count, double price, String url, String groupName) {
-		//****************Lablar********
+		//**************** Labels ********
 		setTitle("Registrera ny aktiepost");
 		Container c= getContentPane();
 		c.setLayout(null);
@@ -114,7 +114,7 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 		c.add(meddelandeL);
 		meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+6*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
 		
-		//****************knappar****************
+		// **************** Buttons ****************
 		c.add(avbrytB);
 		avbrytB.setBounds(fonsterBredd/2-3*ltBredd/2-ltDist,ltY+7*(ltHojd+ltDist),ltBredd,ltHojd);
 		avbrytB.addActionListener(this);
@@ -123,7 +123,7 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 		sparaStangB.setBounds(fonsterBredd/2+ltBredd/2+ltDist,ltY+7*(ltHojd+ltDist),ltBredd,ltHojd);
 		sparaStangB.addActionListener(this);
 		
-		//****************textf�lt****************
+		//****************  Text Fields ****************
 		c.add(namnT);
 		namnT.setBounds(fonsterBredd/2+ltDist,ltY+0*(ltHojd+ltDist),ltBredd,ltHojd);
 		namnT.setText(name);
@@ -191,13 +191,13 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 	}//actionperformed
 	
 	private boolean inputFieldsFailed(){
-		if(((String)namnT.getText()).length()==0) {	meddelandeL.setText("Du m�ste ange ett namn");
+		if(((String)namnT.getText()).length()==0) {	meddelandeL.setText("Du måste ange ett namn");
 			return true;
 		} else if(type == Type.NEW_STOCK && resultListener.isPostPresent(namnT.getText())){
-			meddelandeL.setText("Namnet m�ste vara unikt");
+			meddelandeL.setText("Namnet måste vara unikt");
 			return true;
 		} else if(((String)priceT.getText()).length()==0) {	
-			meddelandeL.setText("Du m�ste ange kurs");
+			meddelandeL.setText("Du måste ange kurs");
 			return true;
 		} else if(ParseCheckerTools.checkInt(antalT.getText()) != null) {
 			meddelandeL.setText(ParseCheckerTools.checkInt(antalT.getText()));

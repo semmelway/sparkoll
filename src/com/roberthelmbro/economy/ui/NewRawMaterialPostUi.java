@@ -22,7 +22,7 @@ public class NewRawMaterialPostUi extends JFrame implements ActionListener {
 	KalkylUI kalkyl; 
 	
 	
-	//Lablar
+	// Labels
 	private JLabel namnL = new JLabel("Namn");
 	private JLabel priceL= new JLabel("Pris (kr/kg)");
 	private JLabel weightL= new JLabel("Vikt (kg)");
@@ -30,11 +30,11 @@ public class NewRawMaterialPostUi extends JFrame implements ActionListener {
 	private JLabel gruppL = new JLabel("Grupp");
 	private JLabel meddelandeL = new JLabel("Meddelande");
 	
-	//knappar
+	// Buttons
 	private JButton sparaStängB = new JButton("Spara och stäng");
 	private JButton avbrytB = new JButton("Avbryt");
 		
-	//textf�lt
+	// Text Fields
 	private JTextField namnT = new JTextField();
 	private JTextField beloppT =new JTextField();
 	private JTextField weightT =new JTextField();
@@ -59,7 +59,7 @@ public class NewRawMaterialPostUi extends JFrame implements ActionListener {
 		c.setLayout(null);
 		setSize(600,300);
 	
-		//****************Lablar********
+		// **************** Labels ********
 		
 		
 		c.add(namnL);
@@ -80,7 +80,7 @@ public class NewRawMaterialPostUi extends JFrame implements ActionListener {
 		c.add(meddelandeL);
 		meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+5*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
 		
-		//****************knappar****************
+		// **************** Buttons ****************
 		c.add(avbrytB);
 		avbrytB.setBounds(fonsterBredd/2-3*ltBredd/2-ltDist,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
 		avbrytB.addActionListener(this);
@@ -89,7 +89,7 @@ public class NewRawMaterialPostUi extends JFrame implements ActionListener {
 		sparaStängB.setBounds(fonsterBredd/2+ltBredd/2+ltDist,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
 		sparaStängB.addActionListener(this);
 		
-		//****************textf�lt****************
+		// **************** Text Fields ****************
 		c.add(namnT);
 		namnT.setBounds(fonsterBredd/2+ltDist,ltY+0*(ltHojd+ltDist),ltBredd,ltHojd);
 		
@@ -107,7 +107,7 @@ public class NewRawMaterialPostUi extends JFrame implements ActionListener {
 		gruppT.setText(klickadGrupp);
 		
 		setVisible(true);
-	}//konstruktor
+	}// Constructor
 	
 	public void actionPerformed(ActionEvent e)
 	{
@@ -123,7 +123,7 @@ public class NewRawMaterialPostUi extends JFrame implements ActionListener {
 			}
 			
 			if(kalkyl.finsPost(namnT.getText())){
-				meddelandeL.setText("Namnet m�ste vara unikt");
+				meddelandeL.setText("Namnet måste vara unikt");
 				return;
 			}
 

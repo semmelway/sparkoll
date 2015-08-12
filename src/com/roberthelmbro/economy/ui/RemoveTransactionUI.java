@@ -1,3 +1,6 @@
+/**
+ * @author Robert Helmbro
+ */
 package com.roberthelmbro.economy.ui;
 
 import java.awt.Container;
@@ -20,12 +23,12 @@ import com.roberthelmbro.util.ParseUtil;
 public class RemoveTransactionUI extends JFrame implements ActionListener {
 	static final long serialVersionUID = 0;
 	
-	//Lablar
-	private JLabel insattningL = new JLabel("Ins�ttning");
+	// Labels
+	private JLabel insattningL = new JLabel("Insättning");
 	private JLabel utagL= new JLabel("Utag");		
-	private JLabel benamningL = new JLabel("Ben�mning");
+	private JLabel benamningL = new JLabel("Benämning");
 	private JLabel beloppL= new JLabel("Belopp");
-	private JLabel datumL= new JLabel("Datum(����-mm-dd)");
+	private JLabel datumL= new JLabel("Datum(åååå-mm-dd)");
 	private JLabel meddelandeL = new JLabel("Meddelande");
 	
 	//RadioButtons
@@ -33,12 +36,12 @@ public class RemoveTransactionUI extends JFrame implements ActionListener {
 	private JRadioButton insattningR = new JRadioButton(); 
 	private JRadioButton utagR = new JRadioButton();
 	
-	//knappar
+	// Buttons
 	private JButton performAndClose = new JButton("Spara och stang");
 	private JButton avbrytB = new JButton("Avbryt");
 	private JButton perform = new JButton("Spara");
 		
-	//textf�lt
+	// Text Fields
 	private JTextField benamningT=new JTextField();
 	private JTextField beloppT=new JTextField();
 	private JTextField datumT=new JTextField();
@@ -58,12 +61,12 @@ public class RemoveTransactionUI extends JFrame implements ActionListener {
 	public RemoveTransactionUI(DataUpdateListener listener, String clickedPost)
 	{
 		mListener =  listener;
-		setTitle("Ta bort ins�ttning/utag");
+		setTitle("Ta bort insättning/utag");
 		Container c= getContentPane();
 		c.setLayout(null);
 		setSize(600,300);
 	
-		//****************Lablar********
+		//**************** Labels ********
 		
 		
 		c.add(insattningL);
@@ -84,7 +87,7 @@ public class RemoveTransactionUI extends JFrame implements ActionListener {
 		
 		c.add(meddelandeL);
 		meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+6*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
-		//****************knappar****************
+		// **************** Buttons ****************
 		c.add(perform);
 		perform.setBounds(fonsterBredd/2-ltBredd/2,ltY+7*(ltHojd+ltDist),ltBredd,ltHojd);
 		perform.addActionListener(this);
@@ -108,7 +111,7 @@ public class RemoveTransactionUI extends JFrame implements ActionListener {
 		utagR.addActionListener(this);
 		utagR.setBounds(fonsterBredd/2, ltY+1*(ltHojd+ltDist), 20, 20);
 		
-		//****************textf�lt****************
+		//**************** Text Fields ****************
 		c.add(benamningT);
 		benamningT.setBounds(fonsterBredd/2+ltDist,ltY+2*(ltHojd+ltDist),ltBredd,ltHojd);
 		benamningT.setText(clickedPost);
@@ -137,7 +140,7 @@ public class RemoveTransactionUI extends JFrame implements ActionListener {
 				return;
 			}
 			else{
-				meddelandeL.setText("Du m�ste ange ins�ttning eller uttag.");
+				meddelandeL.setText("Du måste ange insättning eller uttag.");
 			}
 		}
 
@@ -151,7 +154,7 @@ public class RemoveTransactionUI extends JFrame implements ActionListener {
 				return;
 			}
 			else{
-				meddelandeL.setText("Du m�ste ange ins�ttning eller uttag.");
+				meddelandeL.setText("Du måste ange insättning eller uttag.");
 			}
 		}
 		

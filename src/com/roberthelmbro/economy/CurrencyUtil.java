@@ -1,5 +1,7 @@
 package com.roberthelmbro.economy;
-
+/**
+ * @author Robert Helmbro
+ */
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,9 +64,6 @@ public class CurrencyUtil {
 			if (inputStream != null) inputStream.close();
 			if (inputStreamReader != null) inputStreamReader.close();
 		}
-		
-		
-		
 	}
 	
 
@@ -85,7 +84,7 @@ public class CurrencyUtil {
 			// Remove the unit
 			String value = valueString.replace(SEK_UNIT, "");
 			System.out.println("value = " + value);
-			value = value.replace(" ", "");// In case this format: 1 200 300
+			value = value.replace("ï¿½", "");// In case this format: 1 200 300
 			System.out.println("value = " + value);
 			return Double.parseDouble(value);
 		}

@@ -18,16 +18,16 @@ public class NyGruppUI extends JFrame implements ActionListener {
 	
 	KalkylUI kalkyl; 
 		
-	//Lablar
-	private JLabel benamningL = new JLabel("Ben�mning");
+	// Labels
+	private JLabel benamningL = new JLabel("Benämning");
 	private JLabel meddelandeL = new JLabel("Meddelande");
 
-	//knappar
-	private JButton sparaStangB = new JButton("Spara och st�ng");
+	// Buttons
+	private JButton sparaStangB = new JButton("Spara och stäng");
 	private JButton avbrytB = new JButton("Avbryt");
 	private JButton sparaB = new JButton("Spara");
 		
-	//textf�lt
+	// Text Fields
 	private JTextField benamningT = new JTextField();
 	
 	int fonsterBredd = 600;
@@ -48,7 +48,7 @@ public class NyGruppUI extends JFrame implements ActionListener {
 		c.setLayout(null);
 		setSize(600,300);
 			
-		//****************Lablar********
+		//**************** Labels ********
 		c.add(benamningL);
 		benamningL.setBounds  (fonsterBredd/2-ltDist-ltBredd,ltY,ltBredd,ltHojd);
 		
@@ -56,7 +56,7 @@ public class NyGruppUI extends JFrame implements ActionListener {
 		c.add(meddelandeL);
 		meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+5*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
 
-		//****************knappar****************
+		// **************** Buttons ****************
 		c.add(sparaB);
 		sparaB.setBounds(fonsterBredd/2-ltBredd/2,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
 		sparaB.addActionListener(this);
@@ -69,7 +69,7 @@ public class NyGruppUI extends JFrame implements ActionListener {
 		sparaStangB.setBounds(fonsterBredd/2+ltBredd/2+ltDist,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
 		sparaStangB.addActionListener(this);
 		
-		//****************textf�lt****************
+		//**************** Text Fields ****************
 		c.add(benamningT);
 		benamningT.setBounds(fonsterBredd/2+ltDist,ltY+0*(ltHojd+ltDist),ltBredd,ltHojd);
 		

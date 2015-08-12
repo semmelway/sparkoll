@@ -1,11 +1,12 @@
+/**
+ * @author Robert Helmbro
+ */
 package com.roberthelmbro.economy.ui;
 
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,15 +22,15 @@ public class YearChooserUI extends JFrame implements ActionListener{
 	
 	YearChooserUiListener listener; 
 		
-	//Lablar
+	// Labels
 	private JLabel fromL = new JLabel("Från");
 	private JLabel toL = new JLabel("Till");
 
-	//knappar
+	// Buttons
 	private JButton okB = new JButton("Ok");
 	private JButton cancelB = new JButton("Avbryt");
 		
-	//textf�lt
+	// Text Fields
 	private JSpinner fromS;
 	private JSpinner toS;
 	
@@ -52,14 +53,14 @@ public class YearChooserUI extends JFrame implements ActionListener{
 		c.setLayout(null);
 		setSize(600,300);
 			
-		//****************Lablar********
+		//**************** Labels ********
 		c.add(fromL);
 		fromL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY,ltBredd,ltHojd);
 
 		c.add(toL);
 		toL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY + ltHojd + ltDist,ltBredd,ltHojd);
 
-		//****************knappar****************
+		// **************** Buttons ****************
 		
 		c.add(cancelB);
 		cancelB.setBounds(fonsterBredd/2-3*ltBredd/2-ltDist,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);

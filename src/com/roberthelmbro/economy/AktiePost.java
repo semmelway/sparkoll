@@ -1,6 +1,6 @@
 package com.roberthelmbro.economy;
 /**
- * @author Robert Helmbo
+ * @author Robert Helmbro
  */
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,8 +11,6 @@ import java.util.Calendar;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
-import org.json.JSONException;
 
 import com.roberthelmbro.economy.ui.UppdateraVardeUI;
 import com.roberthelmbro.util.CalendarUtil;
@@ -37,7 +35,7 @@ public class AktiePost extends VärdePost {
 		value = this.kurs*this.antal;
 		
 		happenings = new Vector<Happening>();
-		Happening temp = new Happening(date,this.kurs*this.antal,"K�p");
+		Happening temp = new Happening(date,this.kurs*this.antal,"Köp");
 		happenings.addElement(temp);
 	}
 	//funktioner
@@ -49,7 +47,7 @@ public class AktiePost extends VärdePost {
 			System.out.println(rawData);
 			StringTokenizer parseResult = new StringTokenizer(rawData, ",");
 
-			parseResult.nextToken();//kastar f�rsta
+			parseResult.nextToken();//kastar första
 			Calendar date = CalendarUtil.getTodayCalendarWithClearedClock();
 			
 			String wantedString = parseResult.nextToken();

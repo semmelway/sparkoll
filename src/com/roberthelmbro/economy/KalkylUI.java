@@ -54,19 +54,19 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	private Vector<MileStone> allMilestoneDates = new Vector<MileStone>();
 	
 	// Menubar
-	private JMenuBar menyrad = new JMenuBar();
+	private JMenuBar menuBar = new JMenuBar();
 
 	// Menues
-	private JMenu funktioner = new JMenu("Funktioner");
+	private JMenu fileMenu = new JMenu("Funktioner");
 	private JMenuItem newWorkspace = new JMenuItem("Ny");
-	private JMenuItem oppna = new JMenuItem("oppna");
-	private JMenuItem saveAs = new JMenuItem("Spara som");
-	private JMenuItem uppdatera = new JMenuItem("Uppdatera");
-	private JMenuItem addMilestone = new JMenuItem("Milstolpe");
-	private JMenuItem avsluta = new JMenuItem("Avsluta");
+	private JMenuItem openMenuItem = new JMenuItem("oppna");
+	private JMenuItem saveAsMenuItem = new JMenuItem("Spara som");
+	private JMenuItem updateMenuItem = new JMenuItem("Uppdatera");
+	private JMenuItem addMilestoneMenuItem = new JMenuItem("Milstolpe");
+	private JMenuItem quitMenuItem = new JMenuItem("Avsluta");
 
 	private JMenu posterM = new JMenu("Poster");
-	private JMenuItem nyGrupp = new JMenuItem("Ny grupp");
+	private JMenuItem newGroupMenuItem = new JMenuItem("Ny grupp");
 	private JMenuItem nyAktiePost = new JMenuItem("Ny aktiepost");
 	private JMenuItem nyKontoPost = new JMenuItem("Ny kontopost");
 	private JMenuItem newRawMaterialPost = new JMenuItem("Ny råvarupost");
@@ -90,7 +90,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 
 	String klickadPost = "";
 
-	// Lablar
+	// Labels
 	private int antalRader = 40;
 	private int antalKolumner = 6;
 	private JPanel utskriftsPanel = new JPanel();
@@ -124,38 +124,38 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		setTitle("Robbans program för översyn av pengabingen");
 		Container c = getContentPane();
 		c.setLayout(null);
-		setSize(1024, 768);
+		setSize(1024, 1024);
 		this.addWindowListener(fonsterLyssnare);
 
 		// ***************menyer***********
 		// Menubar
-		setJMenuBar(menyrad);
+		setJMenuBar(menuBar);
 		// menyer
-		menyrad.add(funktioner);
-		funktioner.add(newWorkspace);
-		funktioner.add(oppna);
-		funktioner.add(saveAs);
-		funktioner.add(uppdatera);
-		funktioner.add(addMilestone);
-		funktioner.add(avsluta);
+		menuBar.add(fileMenu);
+		fileMenu.add(newWorkspace);
+		fileMenu.add(openMenuItem);
+		fileMenu.add(saveAsMenuItem);
+		fileMenu.add(updateMenuItem);
+		fileMenu.add(addMilestoneMenuItem);
+		fileMenu.add(quitMenuItem);
 		newWorkspace.addActionListener(this);
-		oppna.addActionListener(this);
-		saveAs.addActionListener(this);
-		uppdatera.addActionListener(this);
-		addMilestone.addActionListener(this);
-		avsluta.addActionListener(this);
+		openMenuItem.addActionListener(this);
+		saveAsMenuItem.addActionListener(this);
+		updateMenuItem.addActionListener(this);
+		addMilestoneMenuItem.addActionListener(this);
+		quitMenuItem.addActionListener(this);
 
-		menyrad.add(posterM);
-		posterM.add(nyGrupp);
+		menuBar.add(posterM);
+		posterM.add(newGroupMenuItem);
 		posterM.add(nyAktiePost);
 		posterM.add(nyKontoPost);
 		posterM.add(newRawMaterialPost);
-		nyGrupp.addActionListener(this);
+		newGroupMenuItem.addActionListener(this);
 		nyAktiePost.addActionListener(this);
 		nyKontoPost.addActionListener(this);
 		newRawMaterialPost.addActionListener(this);
 
-		menyrad.add(loggM);
+		menuBar.add(loggM);
 		loggM.add(skrivOversyn);
 		loggM.add(skrivUtInsUtag);
 		loggM.add(printMilestones);
@@ -164,7 +164,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		printMilestones.addActionListener(this);
 		
 		
-		menyrad.add(viewM);
+		menuBar.add(viewM);
 		viewM.add(period);
 		period.addActionListener(this);
 
@@ -183,10 +183,10 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		removeTransaction.addActionListener(this);
 		removeMilestone.addActionListener(this);
 
-		// ******************Lablar
+		// ****************** Labels
 		utskriftsPanel.setLayout(new GridLayout(antalRader, antalKolumner));
 		//utskriftsPanel.setBounds(30, 30, 970, 520);
-		matrixScrollPane.setBounds( 12, 30, 1000, 520);
+		matrixScrollPane.setBounds( 12, 30, 1000, 726);
 
 		for (int i = 0; i < antalRader; i++)
 			for (int j = 0; j < antalKolumner; j++) {
@@ -220,14 +220,13 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		c.add(scrollPane);
 		scrollPane
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setBounds(12, 550, 1000, 140);
+		scrollPane.setBounds(12, 756, 1000, 225);
 		
 		c.add(commandT);
-		commandT.setBounds(12, 690, 1000, 20);
+		commandT.setBounds(12, 981, 1000, 20);
 		commandT.addActionListener(this);
 
 		setVisible(true);
-		// this.l�sFr�nFil();
 	}// konstruktor
 
 	private MouseListener mouseListener = new MouseAdapter() {
@@ -271,7 +270,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			allMilestoneDates = new Vector<MileStone>();
 			uppdateraUtskriftsPanelen();
 			
-		} else if (e.getSource() == oppna) {
+		} else if (e.getSource() == openMenuItem) {
 			ObjectAndString objectAndString = FileUtil.readObjectFromUserSpecifiedFile(getContentPane());
 			workspace = (Workspace)objectAndString.object;
 			SavedData.setLastSavedWorkspace(objectAndString.string);
@@ -282,11 +281,11 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			updateTotal();
 			uppdateraUtskriftsPanelen();
 		}
-		if (e.getSource() == saveAs) {
+		if (e.getSource() == saveAsMenuItem) {
 			saveWorkspaceAs();
 		}
 
-		if (e.getSource() == uppdatera) {
+		if (e.getSource() == updateMenuItem) {
 
 			// uppdaterar alla VardePoster
 			for (int i = 0; i < workspace.poster.size(); i++) {
@@ -302,16 +301,16 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			showUpdateString("Viewing period: " + CalendarUtil.getShortString(workspace.showFrom) + " -> " + CalendarUtil.getShortString(workspace.showTo));
 			uppdateraUtskriftsPanelen();
 			
-		} else if(e.getSource() == addMilestone) {
+		} else if(e.getSource() == addMilestoneMenuItem) {
 			addMilestone();
 		}
-		if (e.getSource() == avsluta) {
+		if (e.getSource() == quitMenuItem) {
 			saveWorkspace();
 			System.exit(0);
 		}
 		// ****************** Poster
 		// ***********************************************
-		if (e.getSource() == nyGrupp) {
+		if (e.getSource() == newGroupMenuItem) {
 			try {
 				new NyGruppUI(this);
 
@@ -861,7 +860,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 		textArean.append("" + Math.round(all.getValue(to)));
 
-		// *******************************Fardelning****************************************
+		// ******************************* Fardelning ****************************************
 
 		textArean.append("\nFardelning:\t");
 		double tio = 10;
@@ -872,8 +871,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			textArean.append("" + pr + " %" + "\t");
 		}
 
-		// *******************************Effektiv
-		// �rsr�nta****************************************
+		// ******************************* Effektiv Årsränta ********************************
 		textArean.append("\nRänta:\t");
 
 		for (int i = 0; i < antal; i++) {
@@ -884,7 +882,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		textArean
 				.append("" + Math.round(10 * all.getInterest(from, to)) / tio + " %");
 
-		// *******************************Avkastning****************************************
+		// ******************************* Avkastning ****************************************
 		textArean.append("\nAvkastning:\t");
 		for (int i = 0; i < antal; i++) {
 			textArean.append(""

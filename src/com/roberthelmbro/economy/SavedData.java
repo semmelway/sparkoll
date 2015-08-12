@@ -1,5 +1,7 @@
 package com.roberthelmbro.economy;
-
+/**
+ * @author Robert Helmbro
+ */
 import java.io.IOException;
 import java.io.Serializable;
 

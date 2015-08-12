@@ -1,3 +1,6 @@
+/**
+ * @author Robert Helmbro
+ */
 package com.roberthelmbro.economy.ui;
 
 import java.awt.Container;
@@ -17,15 +20,15 @@ import com.roberthelmbro.util.ParseCheckerTools;
 public class RemoveMilestoneUI extends JFrame implements ActionListener {
 	static final long serialVersionUID = 0;
 	
-	//Lablar
-	private JLabel datumL= new JLabel("Datum(����-mm-dd)");
+	// Labels
+	private JLabel datumL= new JLabel("Datum(åååå-mm-dd)");
 	private JLabel meddelandeL = new JLabel("Meddelande");
 
-	//knappar
-	private JButton performAndClose = new JButton("Spara och st�ng");
+	// Buttons
+	private JButton performAndClose = new JButton("Spara och stäng");
 	private JButton avbrytB = new JButton("Avbryt");
 		
-	//textf�lt
+	// Text Fields
 	private JTextField datumT=new JTextField();
 	
 	int fonsterBredd = 600;
@@ -46,12 +49,12 @@ public class RemoveMilestoneUI extends JFrame implements ActionListener {
 	{
 		mListener =  listener;
 		this.post = clickedPost;
-		setTitle("Ta bort milstople fr�n " + clickedPost);
+		setTitle("Ta bort milstople från " + clickedPost);
 		Container c= getContentPane();
 		c.setLayout(null);
 		setSize(600,300);
 	
-		//****************Lablar********
+		// **************** Labels ********
 		
 		c.add(datumL);
 		datumL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+0*(ltHojd+ltDist),ltBredd,ltHojd);
@@ -59,7 +62,7 @@ public class RemoveMilestoneUI extends JFrame implements ActionListener {
 		
 		c.add(meddelandeL);
 		meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+6*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
-		//****************knappar****************
+		// **************** Buttons ****************
 		c.add(avbrytB);
 		avbrytB.setBounds(fonsterBredd/2-3*ltBredd/2-ltDist,ltY+7*(ltHojd+ltDist),ltBredd,ltHojd);
 		avbrytB.addActionListener(this);
@@ -68,7 +71,7 @@ public class RemoveMilestoneUI extends JFrame implements ActionListener {
 		performAndClose.setBounds(fonsterBredd/2+ltBredd/2+ltDist,ltY+7*(ltHojd+ltDist),ltBredd,ltHojd);
 		performAndClose.addActionListener(this);
 		
-		//****************textf�lt****************
+		// **************** Text Fields ****************
 		c.add(datumT);
 		datumT.setBounds(fonsterBredd/2+ltDist,ltY+0*(ltHojd+ltDist),ltBredd,ltHojd);
 		
