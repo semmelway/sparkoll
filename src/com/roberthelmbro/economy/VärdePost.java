@@ -1,7 +1,13 @@
 package com.roberthelmbro.economy;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.roberthelmbro.economy.ui.AddMilestoneUI;
 import com.roberthelmbro.util.CalendarUtil;
@@ -23,6 +29,47 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 		this.groupName = groupName;
 	}
 	
+	public VärdePost(JSONObject json) throws JSONException {
+		super("");
+		name = json.getString("name");
+		value = json.getDouble("value");
+		groupName = json.getString("groupName");
+		JSONArray jHappenings = json.getJSONArray("happenings");
+		for (int i = 0; i < jHappenings.length(); i++) {
+			happenings.add(new Happening(jHappenings.getJSONObject(i)));
+		}
+		lastUppdateDate = CalendarUtil.parseMillis(json.getLong("lastUpdateDate"));
+		JSONArray jMilestones = json.getJSONArray("milestones");
+		for (int i = 0; i < jMilestones.length(); i++) {
+			mMilestones.add(new MileStone(jMilestones.getJSONObject(i)));
+		}
+	}
+
+	@Override
+	public JSONObject getJson() throws JSONException {
+		JSONObject json = new JSONObject();
+		json.put("name", name);		
+		json.put("value", value);
+		json.put("groupName", groupName);
+		
+		JSONArray jHappenings = new JSONArray();
+		for (Happening happening : happenings) {
+			jHappenings.put(happening.getJson());
+		}
+		json.put("happenings", jHappenings);
+		
+		json.put("lastUpdateDate", lastUppdateDate.getTimeInMillis());
+		
+		JSONArray jMilestones = new JSONArray();
+		for (MileStone milestone : mMilestones) {
+			jMilestones.put(milestone.getJson());
+		}
+		json.put("milestones", jMilestones);
+
+		return json;
+	}
+
+	
 	public String getGroupName() {
 		return groupName;
 	}
@@ -43,9 +90,10 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 		for(int i =0;i<mMilestones.size();i++)
 		{
 			MileStone milestone = mMilestones.elementAt(i);
-			if (milestone.getTimeInMillis() == date.getTimeInMillis())
+			if (milestone.getTimeInMillis() == date.getTimeInMillis()) {
 				mMilestones.removeElementAt(i);
-			return;
+				return;
+			}
 		}
 	}
 	
@@ -114,20 +162,14 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 		}catch(NullPointerException e){return 0;}
 	}
 	
-	public int getNumberOfHappenings(Calendar from, Calendar to) {
-		try {
-			Happening happening;
-			Calendar date;
-			int count = 0;
-			for(int i =0; i < happenings.size(); i++) {
-				happening = happenings.elementAt(i);
-				date = happening.getDate();
-				if(CalendarUtil.isOnOrBetween(date, from, to)) {
-					count++;
-				}
+	public List<Happening> getHappenings(Calendar from, Calendar to) {
+		List<Happening> happeningsInRange = new LinkedList<Happening>();
+		for (Happening happening : happenings) {
+			if (CalendarUtil.isOnOrBetween(happening.getDate(), from, to)) {
+				happeningsInRange.add(happening);
 			}
-		return count;
-		}catch(NullPointerException e){return 0;}
+		}
+		return happeningsInRange;
 	}
 	
 	public void sort() {		
@@ -355,7 +397,7 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 	
 	public boolean isActive(Calendar from, Calendar to) {
 		// Check number of happenings
-		if (getNumberOfHappenings(from, to) > 0) {
+		if (getHappenings(from, to).size() > 0) {
 			return true;
 		}
 		// Check value
@@ -367,5 +409,6 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 		// Then its not active
 		return false;
 	}
+	
 
 }

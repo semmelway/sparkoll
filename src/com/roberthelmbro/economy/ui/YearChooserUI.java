@@ -43,7 +43,7 @@ public class YearChooserUI extends JFrame implements ActionListener{
 
 	int ltY = 50;
 	
-	public YearChooserUI(YearChooserUiListener listener, Calendar[] milestones, Calendar from, Calendar to) {
+	public YearChooserUI(YearChooserUiListener listener, Calendar[] milestones) {
 		
 		System.out.println("Length: " + milestones.length);
 		

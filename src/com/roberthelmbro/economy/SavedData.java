@@ -35,12 +35,12 @@ public class SavedData implements Serializable{
 	}
 	
 	public static void save() throws IOException{
-		FileUtil.writeObjectToFile(lastSavedWorkspace, SESSION_DATA_FILE_NAME);
+		FileUtil.writeStringToFile(lastSavedWorkspace, SESSION_DATA_FILE_NAME);
 	}
 	
 	public static void load(PrintUpdate statusListener) throws ClassNotFoundException, IOException{
 		statusListener.showUpdateString("Loading session data");
-		lastSavedWorkspace = (String)FileUtil.readObjectFromFile(statusListener, SESSION_DATA_FILE_NAME);
+		lastSavedWorkspace = FileUtil.readStringFromFile(statusListener, SESSION_DATA_FILE_NAME);
 		
 		if(lastSavedWorkspace == null){
 			statusListener.showUpdateString("No workspace found");

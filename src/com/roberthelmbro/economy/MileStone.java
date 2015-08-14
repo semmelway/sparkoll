@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.roberthelmbro.util.CalendarUtil;
 
 public class MileStone extends GregorianCalendar implements Serializable {
@@ -37,6 +40,19 @@ public class MileStone extends GregorianCalendar implements Serializable {
 		readableDate = CalendarUtil.getShortString(this);
 	}
 
+	public MileStone(JSONObject json) throws JSONException {
+		super();
+		value = json.getDouble("value");
+		this.setTimeInMillis(json.getLong("time"));
+	}
+
+	public JSONObject getJson() throws JSONException {
+		JSONObject json = new JSONObject();
+		json.put("value", value);
+		json.put("time", getTimeInMillis());
+		return json;
+	}
+	
 	public double getValue() {
 		return value;
 	}

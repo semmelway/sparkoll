@@ -8,12 +8,9 @@ import java.awt.event.ActionListener;
 
 import java.io.IOException;
 
-
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import com.roberthelmbro.economy.KalkylUI;
@@ -21,34 +18,27 @@ import com.roberthelmbro.util.CalendarUtil;
 import com.roberthelmbro.util.ParseCheckerTools;
 import com.roberthelmbro.util.ParseUtil;
 
-public class InsattningUtagUI extends JFrame implements ActionListener{
-
-
+public class TransactionUi extends JFrame implements ActionListener{
 
 		static final long serialVersionUID = 0;
 		
-		KalkylUI kalkyl; 
+		KalkylUI kalkyl;
 				
 		// Labels
-		private JLabel insattningL = new JLabel("Insättning");
-		private JLabel utagL= new JLabel("Utag");		
-		private JLabel benamningL = new JLabel("Benämning");
+		private JLabel fromL = new JLabel("Från");
+		private JLabel toL= new JLabel("Till");		
 		private JLabel beloppL= new JLabel("Belopp");
 		private JLabel datumL= new JLabel("Datum(åååå-mm-dd)");
 		private JLabel kommentarL = new JLabel("Kommentar");
 		private JLabel meddelandeL = new JLabel("Meddelande");
 		
-		// RadioButtons
-		private ButtonGroup insUtagSel = new ButtonGroup();
-		private JRadioButton insattningR = new JRadioButton(); 
-		private JRadioButton utagR = new JRadioButton();
-		
 		// Buttons
 		private JButton sparastangB = new JButton("Spara och stäng");
 		private JButton avbrytB = new JButton("Avbryt");
-			
+		
 		// TextFields
-		private JTextField benomningT=new JTextField();
+        private JTextField fromT = new JTextField(); 
+        private JTextField toT = new JTextField();
 		private JTextField beloppT=new JTextField();
 		private JTextField datumT=new JTextField();
 		private JTextField kommentarT = new JTextField();
@@ -61,27 +51,22 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 		
 		int ltY = 30;
 		
-		public InsattningUtagUI(KalkylUI k,String klickadPost) throws IOException ,ClassNotFoundException
+		public TransactionUi(KalkylUI k,String klickadPost, boolean from) throws IOException ,ClassNotFoundException
 		{
 			kalkyl=k;	
 			
-			setTitle("Registrera insättning/utag");
+			setTitle("Registrera transaktion");
 			Container c= getContentPane();
 			c.setLayout(null);
 			setSize(600,300);
 		
 			// ****************Labels********
+			c.add(fromL);
+			fromL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+0*(ltHojd+ltDist),ltBredd,ltHojd);
 			
-			
-			c.add(insattningL);
-			insattningL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+0*(ltHojd+ltDist),ltBredd,ltHojd);
-			
-			c.add(utagL);
-			utagL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+1*(ltHojd+ltDist),ltBredd,ltHojd);
-			
-			c.add(benamningL);
-			benamningL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+2*(ltHojd+ltDist),ltBredd,ltHojd);
-			
+			c.add(toL);
+			toL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+1*(ltHojd+ltDist),ltBredd,ltHojd);
+						
 			c.add(beloppL);
 			beloppL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+3*(ltHojd+ltDist),ltBredd,ltHojd);
 			
@@ -103,21 +88,19 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 			sparastangB.setBounds(fonsterBredd/2+ltBredd/2+ltDist,ltY+7*(ltHojd+ltDist),ltBredd,ltHojd);
 			sparastangB.addActionListener(this);
 			
-			// ****************Radio Buttons************
-			insUtagSel.add(insattningR);
-			c.add(insattningR);
-			insattningR.addActionListener(this);
-			insattningR.setBounds(fonsterBredd/2, ltY+0*(ltHojd+ltDist), 20,20);
+			// **************** Text Fields ****************
+			c.add(fromT);
+			fromT.setBounds(fonsterBredd/2+ltDist, ltY+0*(ltHojd+ltDist), ltBredd,ltHojd);
 			
-			insUtagSel.add(utagR);
-			c.add(utagR);
-			utagR.addActionListener(this);
-			utagR.setBounds(fonsterBredd/2, ltY+1*(ltHojd+ltDist), 20, 20);
-			
-			// ****************textfields****************
-			c.add(benomningT);
-			benomningT.setBounds(fonsterBredd/2+ltDist,ltY+2*(ltHojd+ltDist),ltBredd,ltHojd);
-			benomningT.setText(klickadPost);
+			c.add(toT);
+			toT.setBounds(fonsterBredd/2+ltDist, ltY+1*(ltHojd+ltDist), ltBredd, ltHojd);
+			if (from) {
+				fromT.setText(klickadPost);
+				toT.setText("Skandiabanken");
+			} else {
+				toT.setText(klickadPost);
+				fromT.setText("Skandiabanken");
+			}
 			
 			c.add(beloppT);
 			beloppT.setBounds(fonsterBredd/2+ltDist,ltY+3*(ltHojd+ltDist),ltBredd,ltHojd);
@@ -131,33 +114,17 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 			setVisible(true);
 		}//konstruktor
 		
-		public void actionPerformed(ActionEvent e)
-		{
-			if(e.getSource()==avbrytB)
-			{
-				
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource()==avbrytB) {
 				this.setVisible(false);
-			
-			}
-		
-			
-			
-			if(e.getSource()==sparastangB){
-				if(insattningR.isSelected()){
-					this.ins(true);
-					return;
-				}
-				else if(utagR.isSelected()){
-					this.utag(true);
-					return;
-				}
-				else{
-					meddelandeL.setText("Du måste ange insättning eller utag.");
-			}
-			
+				return;
+			} else if (e.getSource()==sparastangB) {
+				transaction(true);
+				return;
 			}					
 		}//metod(actionPerformed)
-		public void ins(boolean stang){
+
+		public void transaction (boolean stang){
 			if(ParseCheckerTools.checkDate(datumT.getText()) != null){
 				meddelandeL.setText(ParseCheckerTools.checkDate(datumT.getText()));
 				return;
@@ -166,35 +133,24 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 				meddelandeL.setText(ParseCheckerTools.checkDouble(beloppT.getText()));
 				return;
 			}
-			if(kalkyl.kollaGruppNamn(benomningT.getText())){
+			if(kalkyl.kollaGruppNamn(fromT.getText())){
 				meddelandeL.setText("Du måste ange korrekt gruppnamn.");
 				return;
 			}
-								
-			kalkyl.ins(benomningT.getText(),ParseUtil.parseDouble(beloppT.getText()),CalendarUtil.parseString(datumT.getText()),kommentarT.getText());	
+
+			if(kalkyl.kollaGruppNamn(toT.getText())){
+				meddelandeL.setText("Du måste ange korrekt gruppnamn.");
+				return;
+			}
+
+			kalkyl.transaction(fromT.getText(), toT.getText(), ParseUtil.parseDouble(beloppT.getText()),CalendarUtil.parseString(datumT.getText()),kommentarT.getText());	
 			meddelandeL.setText("Insättning sparad.");
 			if(stang)
 				this.setVisible(!stang);
 		}	
 		
-		public void utag(boolean stang) {
-			if(ParseCheckerTools.checkDate(datumT.getText()) != null){
-				meddelandeL.setText(ParseCheckerTools.checkDate(datumT.getText()));
-				return;
-			}
-			if(ParseCheckerTools.checkDouble(beloppT.getText()) != null){
-				meddelandeL.setText(ParseCheckerTools.checkDouble(beloppT.getText()));
-				return;
-			}
-			if(kalkyl.kollaGruppNamn(benomningT.getText())){
-				meddelandeL.setText("Du måste ange korrekt gruppnamn.");
-				return;
-			}		
+		public static void main(String[] args) throws ClassNotFoundException, IOException {
+			new TransactionUi(null, "Dummy", true);
+		}
 		
-			kalkyl.utag(benomningT.getText(),ParseUtil.parseDouble(beloppT.getText()),CalendarUtil.parseString(datumT.getText()),kommentarT.getText());
-			meddelandeL.setText("Utag sparat.");
-			if(stang)
-				this.setVisible(!stang);	
-		}	
 }//class
-

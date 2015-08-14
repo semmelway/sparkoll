@@ -4,8 +4,14 @@ package com.roberthelmbro.economy;
  * @author Robert Helmbro 
  */
 
+import java.net.MalformedURLException;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Vector;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.roberthelmbro.util.CalendarUtil;
 
@@ -19,6 +25,38 @@ public class Grupp extends Post {
 	public Grupp(String name) {
 		super(name);
 		total = new VärdePost("total", "");
+	}
+
+	public Grupp(JSONObject json) throws JSONException, MalformedURLException {
+		super("");		
+		JSONArray jPoster = json.getJSONArray("poster");
+		for (int i = 0; i < jPoster.length(); i++) {
+			switch((String)jPoster.getJSONObject(i).get("class")) {
+			case "KontoPost": 
+				poster.add(new KontoPost(jPoster.getJSONObject(i)));
+				break;
+			case "RawMaterialPost": 
+				poster.add(new RawMaterialPost(jPoster.getJSONObject(i)));
+				break;
+			case "AktiePost": 
+				poster.add(new AktiePost(jPoster.getJSONObject(i)));
+				break;
+			};
+		}
+		name = json.getString("name");
+	}
+	
+	@Override
+	public JSONObject getJson() throws JSONException {
+		JSONObject json = new JSONObject();
+		JSONArray posterJsonArray = new JSONArray();
+		for (Post post : poster) {
+			posterJsonArray.put(post.getJson());
+		}
+		json.put("poster", posterJsonArray);
+		json.put("name", name);
+		json.put("class", "Grupp");
+		return json;
 	}
 
 	// funktioner
@@ -152,27 +190,14 @@ public class Grupp extends Post {
 	public void addHappening(Calendar date, double amount) {
 		total.addHappening(date, amount, "");
 	}
-
-	@Override
-	public int getNumberOfHappenings(Calendar to, Calendar from) {
-		try {
-			Happening happening;
-			Calendar date;
-			int count = 0;
-			for(int i =0; i < total.happenings.size(); i++) {
-				happening = total.happenings.elementAt(i);
-				date = happening.getDate();
-				if(CalendarUtil.isOnOrBetween(date, from, to)) {
-					count++;
-				}
-			}
-		return count;
-		}catch(NullPointerException e){return 0;}
+	
+	public List<Happening> getHappenings(Calendar from, Calendar to) {
+		return total.getHappenings(from, to);
 	}
 	
 	public boolean isActive(Calendar from, Calendar to) {
 		// Check number of happenings
-		if (getNumberOfHappenings(from, to) > 0) {
+		if (getHappenings(from, to).size() > 0) {
 			return true;
 		}
 		// Check value
@@ -182,5 +207,5 @@ public class Grupp extends Post {
 		// Then its not active
 		return false;
 	}
-}// class
 
+}// class

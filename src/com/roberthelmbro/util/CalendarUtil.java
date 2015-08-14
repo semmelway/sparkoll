@@ -15,7 +15,25 @@ import com.roberthelmbro.economy.MileStone;
 
 public class CalendarUtil {
 	
-	public static Calendar getTodayCalendarWithClearedClock(){
+	public static Calendar parseMillis(long millis) {
+		GregorianCalendar time = new GregorianCalendar();
+		time.setTimeInMillis(millis);
+		return time;
+	}
+
+	public static Calendar getThisYearStart() {
+		GregorianCalendar now = new GregorianCalendar();
+		now.setTimeInMillis(System.currentTimeMillis());
+		
+		GregorianCalendar nowWithClearedClock = new GregorianCalendar();
+		
+		nowWithClearedClock.clear();
+		
+		nowWithClearedClock.set(now.get(Calendar.YEAR), 0, 1);
+		return nowWithClearedClock;
+	}
+	
+	public static Calendar getTodayCalendarWithClearedClock() {
 		GregorianCalendar now = new GregorianCalendar();
 		now.setTimeInMillis(System.currentTimeMillis());
 		

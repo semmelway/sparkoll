@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -17,8 +18,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -32,7 +35,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
 import javax.swing.SwingConstants;
+
+import org.json.JSONException;
 
 import com.roberthelmbro.economy.ui.GetMilestoneDateUI;
 import com.roberthelmbro.economy.ui.InsattningUtagUI;
@@ -42,9 +48,11 @@ import com.roberthelmbro.economy.ui.NyKontoPostUI;
 import com.roberthelmbro.economy.ui.RemoveMilestoneUI;
 import com.roberthelmbro.economy.ui.RemoveTransactionUI;
 import com.roberthelmbro.economy.ui.StockInfoInputUI;
+import com.roberthelmbro.economy.ui.TransactionUi;
 import com.roberthelmbro.economy.ui.YearChooserUI;
 import com.roberthelmbro.util.CalendarUtil;
 import com.roberthelmbro.util.FileUtil;
+import com.roberthelmbro.util.FileUtil.JsonAndPath;
 import com.roberthelmbro.util.FileUtil.ObjectAndString;
 
 public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDateListener, StockInfoInputUiListener, PrintUpdate, YearChooserUiListener, DataUpdateListener  {
@@ -59,7 +67,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	// Menues
 	private JMenu fileMenu = new JMenu("Funktioner");
 	private JMenuItem newWorkspace = new JMenuItem("Ny");
-	private JMenuItem openMenuItem = new JMenuItem("oppna");
+	private JMenuItem openMenuItem = new JMenuItem("Öppna");
 	private JMenuItem saveAsMenuItem = new JMenuItem("Spara som");
 	private JMenuItem updateMenuItem = new JMenuItem("Uppdatera");
 	private JMenuItem addMilestoneMenuItem = new JMenuItem("Milstolpe");
@@ -77,11 +85,16 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	private JMenuItem printMilestones = new JMenuItem("Skriv ut milstolpar");
 	
 	private JMenu viewM = new JMenu("Visa");
+	private JMenuItem allMenuItem = new JMenuItem("Full");
+	private JMenuItem thisYearMenuItem = new JMenuItem("I år");
 	private JMenuItem period = new JMenuItem("Period");
+	
 
 	// Popup menus
 	private JPopupMenu popupMenyn = new JPopupMenu();
-	private JMenuItem update = new JMenuItem("Uppdatera");
+	private JMenuItem transactionFrom = new JMenuItem("Överför från");
+	private JMenuItem transactionTo = new JMenuItem("Överför till");
+	private JMenuItem edit = new JMenuItem("Redigera");
 	private JMenuItem radera = new JMenuItem("Radera");
 	private JMenuItem registreraInsUt = new JMenuItem("Registrera insättning eller utag");
 	private JMenuItem visaInsUt = new JMenuItem("Visa insättnigar & utag");
@@ -91,6 +104,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	String klickadPost = "";
 
 	// Labels
+	private JLabel titleLabel = new JLabel();
 	private int antalRader = 40;
 	private int antalKolumner = 6;
 	private JPanel utskriftsPanel = new JPanel();
@@ -103,7 +117,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 
 	// textarea
 	JTextArea textArean = new JTextArea();
-	JScrollPane scrollPane = new JScrollPane(textArean);
+	JScrollPane textAreaScrollPane = new JScrollPane(textArean);
 	
 	// command
 	JTextField commandT = new JTextField();
@@ -165,18 +179,26 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		
 		
 		menuBar.add(viewM);
+		viewM.add(allMenuItem);
+		viewM.add(thisYearMenuItem);
 		viewM.add(period);
+		allMenuItem.addActionListener(this);
+		thisYearMenuItem.addActionListener(this);
 		period.addActionListener(this);
 
-		// *****************popup meny
-		popupMenyn.add(update);
+		// Popup Menu
+		popupMenyn.add(transactionFrom);
+		popupMenyn.add(transactionTo);
+		popupMenyn.add(edit);
 		popupMenyn.add(radera);
 		popupMenyn.add(registreraInsUt);
 		popupMenyn.add(visaInsUt);
 		popupMenyn.add(removeTransaction);
 		popupMenyn.add(removeMilestone);
 		
-		update.addActionListener(this);
+		transactionFrom.addActionListener(this);
+		transactionTo.addActionListener(this);
+		edit.addActionListener(this);
 		radera.addActionListener(this);
 		registreraInsUt.addActionListener(this);
 		visaInsUt.addActionListener(this);
@@ -185,7 +207,8 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 
 		// ****************** Labels
 		utskriftsPanel.setLayout(new GridLayout(antalRader, antalKolumner));
-		//utskriftsPanel.setBounds(30, 30, 970, 520);
+		titleLabel.setBounds(12, 5, 800, 20);
+		c.add(titleLabel);
 		matrixScrollPane.setBounds( 12, 30, 1000, 726);
 
 		for (int i = 0; i < antalRader; i++)
@@ -217,10 +240,10 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		rubrikFont = new Font("arial", Font.BOLD, 13);
 
 		// ****************textarea****************
-		c.add(scrollPane);
-		scrollPane
+		c.add(textAreaScrollPane);
+		textAreaScrollPane
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setBounds(12, 756, 1000, 225);
+		textAreaScrollPane.setBounds(12, 756, 1000, 225);
 		
 		c.add(commandT);
 		commandT.setBounds(12, 981, 1000, 20);
@@ -239,7 +262,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				if (kollaGruppNamn(klickadPost))
 					return;
 
-				update.setText("Uppdatera " + klickadPost);
+				edit.setText("Redigera " + klickadPost);
 				radera.setText("Radera " + klickadPost);
 				
 
@@ -269,20 +292,36 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			all = new Grupp("all");
 			allMilestoneDates = new Vector<MileStone>();
 			uppdateraUtskriftsPanelen();
-			
+
 		} else if (e.getSource() == openMenuItem) {
-			ObjectAndString objectAndString = FileUtil.readObjectFromUserSpecifiedFile(getContentPane());
-			workspace = (Workspace)objectAndString.object;
-			SavedData.setLastSavedWorkspace(objectAndString.string);
-			try{
-			SavedData.save();
-			}catch(IOException ioe){ioe.printStackTrace();}
+			//			ObjectAndString objectAndString = FileUtil.readObjectFromUserSpecifiedFile(getContentPane());
+			//			workspace = (Workspace)objectAndString.object;
+			//			SavedData.setLastSavedWorkspace(objectAndString.string);
+			JsonAndPath jsonAndPath = FileUtil.readJsonFromUserSpecifiedFile(getContentPane());
+			
+			
+			try {
+				workspace = new Workspace(jsonAndPath.json);
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+				workspace = new Workspace();
+				log("JSONException while loading workspace: " + jsonAndPath.path);
+			}
+			SavedData.setLastSavedWorkspace(jsonAndPath.path);
+			try {
+				SavedData.save();
+			} catch(IOException ioe){ioe.printStackTrace();}
 			updateAllMilestones();
 			updateTotal();
 			uppdateraUtskriftsPanelen();
 		}
 		if (e.getSource() == saveAsMenuItem) {
-			saveWorkspaceAs();
+			try {
+				saveWorkspaceAs();
+			} catch (JSONException | URISyntaxException | IOException exc) {
+				log("Could not save workspace");
+				exc.printStackTrace();
+			}
 		}
 
 		if (e.getSource() == updateMenuItem) {
@@ -305,7 +344,12 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			addMilestone();
 		}
 		if (e.getSource() == quitMenuItem) {
-			saveWorkspace();
+			try {
+				saveWorkspace();
+			} catch (JSONException | URISyntaxException | IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			System.exit(0);
 		}
 		// ****************** Poster
@@ -315,9 +359,9 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				new NyGruppUI(this);
 
 			} catch (ClassNotFoundException c) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			} catch (IOException i) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			}
 		}
 		if (e.getSource() == nyAktiePost) {
@@ -326,9 +370,9 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				new StockInfoInputUI(this, "");
 
 			} catch (ClassNotFoundException c) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			} catch (IOException i) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			}
 		}
 		if (e.getSource() == nyKontoPost) {
@@ -337,18 +381,18 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				new NyKontoPostUI(this, "");
 
 			} catch (ClassNotFoundException c) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			} catch (IOException i) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			}
 		} else if(e.getSource() == newRawMaterialPost) {
 			try {
 				new NewRawMaterialPostUi(this, "");
 
 			} catch (ClassNotFoundException c) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			} catch (IOException i) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			}
 		}
 		
@@ -365,12 +409,36 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			printTransactions();
 		} else if(e.getSource() == printMilestones) {
 			printAllMilestones();
-		} else if(e.getSource() == period) {
+		} else if (e.getSource() == allMenuItem) {
+			setFilterDates(CalendarUtil.parseString("2010-01-01"), workspace.lastUpdateDate);
+		} else if (e.getSource() == thisYearMenuItem) {
+			setFilterDates(CalendarUtil.getThisYearStart(), workspace.lastUpdateDate);
+		} else if (e.getSource() == period) {
 			showYearChooserUI();
 		}
-		// ****************** Popup
+		// ****************** Popup Menu *****************
 		// ***********************************************
-		if(e.getSource() == update) {
+		if (e.getSource() == transactionFrom) {
+			try {
+				new TransactionUi(this, klickadPost, true);
+			} catch (ClassNotFoundException c) {
+				log("Fatal error");
+			} catch (IOException i) {
+				log("Fatal error");
+			}
+		}
+
+		if (e.getSource() == transactionTo) {
+			try {
+				new TransactionUi(this, klickadPost, false);
+			} catch (ClassNotFoundException c) {
+				log("Fatal error");
+			} catch (IOException i) {
+				log("Fatal error");
+			}
+		}
+		
+		if (e.getSource() == edit) {
 			if(isStock(klickadPost)){
 				new StockInfoInputUI(this, (AktiePost)getPost(klickadPost));
 			}
@@ -394,7 +462,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 
 					}
 					workspace.poster.removeElementAt(i);
-					textArean.append("\nGruppen " + klickadPost
+					log("\nGruppen " + klickadPost
 							+ " har tagits bort");
 				}
 			}
@@ -407,9 +475,9 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				new InsattningUtagUI(this, klickadPost);
 
 			} catch (ClassNotFoundException c) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			} catch (IOException i) {
-				textArean.append("Fatal error");
+				log("Fatal error");
 			}
 		} else if(e.getSource() == removeTransaction) {
 			new RemoveTransactionUI(this, klickadPost);
@@ -466,7 +534,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 
 		possibleChoises[possibleChoises.length -1] = new MileStone(workspace.lastUpdateDate) ;
-		new YearChooserUI(this, possibleChoises, workspace.showFrom, workspace.showTo);
+		new YearChooserUI(this, possibleChoises);
 	}
 
 	private void printAllMilestones() {
@@ -622,9 +690,13 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 
 	public void uppdateraUtskriftsPanelen() {
 		rensaPanelen();
+		
 		Calendar from = workspace.showFrom;
 		Calendar to = workspace.showTo;
 
+		titleLabel.setText(CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
+		
+		
 		int antal = workspace.poster.size();
 		int decr = 0;
 		// *******************************Gruppnamn****************************************
@@ -785,7 +857,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				if ((((Post) workspace.poster.elementAt(i)).getName()).equals(benamning)) {
 					((VärdePost) workspace.poster.elementAt(i)).addHappening(datum,
 							amount, kommentar);
-					textArean.append("\n\nInsättning har registrerats. \nBelopp: "
+					log("\n\nInsättning har registrerats. \nBelopp: "
 							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(datum) + "\nGrupp:  "
 							+ benamning + "\nKommentar:" + kommentar + "\n");
 				}
@@ -807,12 +879,45 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				if ((((Post) workspace.poster.elementAt(i)).getName()).equals(benamning)) {
 					((VärdePost) workspace.poster.elementAt(i)).addHappening(datum,
 							(-1 * amount), kommentar);
-					textArean.append("\n\nUtag har registrerats. \nBelopp: "
+					log("\n\nUtag har registrerats. \nBelopp: "
 							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(datum) + "\nGrupp:  "
 							+ benamning + "\nKommentar:" + kommentar + "\n");
 				}
 			}
 		}
+		uppdateraUtskriftsPanelen();
+	}
+	
+	public void transaction(String from, String to, double amount, Calendar date, String comment) {
+		all.addHappening(date, amount);
+		all.addHappening(date, (-1 * amount));
+		
+		Grupp currentGroup;
+		VärdePost currentPost;
+		for (int i = 0; i < workspace.poster.size(); i++) {
+			if (isGroup(i)) {
+				currentGroup = (Grupp)workspace.poster.elementAt(i);	
+				if (currentGroup.getName().equals(from)) {
+					currentGroup.addHappening(date, (-1 * amount));
+				} else if (currentGroup.getName().equals(to)) {
+					currentGroup.addHappening(date, amount);
+				}
+			} else {
+				currentPost = (VärdePost)workspace.poster.elementAt(i);
+				if (currentPost.getName().equals(from)) {
+					currentPost.addHappening(date, (-1 * amount), comment);
+					log("\n\nUtag har registrerats. \nBelopp: "
+							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nPost:  "
+							+ from + "\nKommentar:" + comment + "\n");
+				} else if (currentPost.getName().equals(to)) {
+					currentPost.addHappening(date, amount, comment);
+					log("\n\nInsättning har registrerats. \nBelopp: "
+							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nPost:  "
+							+ to + "\nKommentar:" + comment + "\n");
+				}
+			}
+		}
+		
 		uppdateraUtskriftsPanelen();
 	}
 
@@ -833,63 +938,63 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		int antal = workspace.poster.size();
 
 		if (antal == 0) {
-			textArean.append("\nDet finns inga poster att visa");
+			log("\nDet finns inga poster att visa");
 			return;
 			
 		}
 		
-		textArean.append("\n\nEkonomisk situation för perioden ");
-		textArean.append(CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
+		log("\n\nEkonomisk situation för perioden ");
+		log(CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
 		
 		// *******************************Gruppnamn****************************************
-		textArean.append("\nGrupp:\t");
+		log("\nGrupp:\t");
 
 		for (int i = 0; i < antal; i++) {
-			textArean.append(
+			log(
 					ellipsize(((Post) workspace.poster.elementAt(i)).getName(),12)
 					+ "\t");
 		}
-		textArean.append("Totalt");
+		log("Totalt");
 
 		// *******************************Varde****************************************
 
-		textArean.append("\nDagsvarde:\t");
+		log("\nDagsvarde:\t");
 		for (int i = 0; i < antal; i++) {
-			textArean.append("" + Math.round(((Post) workspace.poster.elementAt(i)).getValue(to))
+			log("" + Math.round(((Post) workspace.poster.elementAt(i)).getValue(to))
 					+ "\t");
 		}
-		textArean.append("" + Math.round(all.getValue(to)));
+		log("" + Math.round(all.getValue(to)));
 
 		// ******************************* Fardelning ****************************************
 
-		textArean.append("\nFardelning:\t");
+		log("\nFardelning:\t");
 		double tio = 10;
 		for (int i = 0; i < antal; i++) {
 			double pr = ((Post) workspace.poster.elementAt(i)).getValue(to)
 					/ (all.getValue(to) * 0.01);
 			pr = Math.round(pr * 10) / tio;
-			textArean.append("" + pr + " %" + "\t");
+			log("" + pr + " %" + "\t");
 		}
 
 		// ******************************* Effektiv Årsränta ********************************
-		textArean.append("\nRänta:\t");
+		log("\nRänta:\t");
 
 		for (int i = 0; i < antal; i++) {
 			double ranta = ((Post) workspace.poster.elementAt(i)).getInterest(from, to);
 
-			textArean.append("" + Math.round(ranta * 10) / tio + " %" + "\t");
+			log("" + Math.round(ranta * 10) / tio + " %" + "\t");
 		}
 		textArean
 				.append("" + Math.round(10 * all.getInterest(from, to)) / tio + " %");
 
 		// ******************************* Avkastning ****************************************
-		textArean.append("\nAvkastning:\t");
+		log("\nAvkastning:\t");
 		for (int i = 0; i < antal; i++) {
-			textArean.append(""
+			log(""
 					+ Math.round((workspace.poster.elementAt(i).getValue(to) - workspace.poster.elementAt(i)
 							.getTotalAmount(from, to))) + "\t");
 		}
-		textArean.append("" + Math.round(all.getValue(to) - all.getTotalAmount(from, to)) + "\n\n");
+		log("" + Math.round(all.getValue(to) - all.getTotalAmount(from, to)) + "\n\n");
 
 		// *******************************Avkastning
 		// slut****************************************
@@ -969,56 +1074,48 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		Calendar to = workspace.showTo;
 		backButton.setVisible(true);
 		int i = getPostIndex(postNamn);
-		utskriftsLabel[0][0]
-				.setText("Förtydligande av Insättningar och utag för "
-						+ workspace.poster.elementAt(i).getName()
-						+ " under perioden " + CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
+		VärdePost post = (VärdePost)workspace.poster.elementAt(i);
+		titleLabel.setText("Transaktioner, " + post.getName() + ", " + CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
+		
 
-		for (int j = 0; j < workspace.poster.elementAt(i).getNumberOfHappenings(from, to); j++) {
-			utskriftsLabel[j + 1][0].setText(CalendarUtil.getShortString(
-					((VärdePost) workspace.poster.elementAt(i)).getHappeningDate(j)));
+		List<Happening> happengings = workspace.poster.elementAt(i).getHappenings(from, to);
+		for (int j = 0; j < happengings.size(); j++) {
+			setText(CalendarUtil.getShortString(happengings.get(j).getDate()), "", j + 1, 0);
+			setText(happengings.get(j).getAmount(), "", j + 1, 1);
 
-			utskriftsLabel[j + 1][1].setText(""
-					+ ((VärdePost) workspace.poster.elementAt(i)).getHappeningAmount(j));
-
-			if (((VärdePost) workspace.poster.elementAt(i)).getHappeningComment(j)
-					.equals("")) {
-
-				utskriftsLabel[j + 1][2].setText("Kommentar saknas\n");
+			if (happengings.get(j).getKommentar().equals("")) {
+				setText("Kommentar saknas", "", j + 1, 2);
 			}// if
 			else {
-				utskriftsLabel[j + 1][2].setText(""
-						+ ((VärdePost) workspace.poster.elementAt(i))
-								.getHappeningComment(j) + "\n");
+				setText(happengings.get(j).getKommentar(), "", j + 1, 2);
 			}// else
 		}// for
-
 	}
 
 	public void printTransactions() {
 		Calendar from = workspace.showFrom;
 		Calendar to = workspace.showTo;
 		if (workspace.poster.size() == 0) {
-			textArean.append("\nDet finns inga grupper.");
+			log("\nDet finns inga grupper.");
 			return;
 		}
 		for (int i = 0; i < workspace.poster.size(); i++) {
 			if (workspace.poster.elementAt(i) instanceof VärdePost) {
 				VärdePost postToPrint = (VärdePost)workspace.poster.elementAt(i);
-				textArean.append("\n\n"
+				log("\n\n"
 						+ "Förtydligande av Insättningar och utag för "
 						+ ((String) (((Post) workspace.poster.elementAt(i)).getName()))
 						+ "\n\n");
 				Vector<Happening> happeningsInRange = postToPrint.createHappeningsInRange(from, to);
 				for (int j = 0; j < happeningsInRange.size(); j++) {
-					textArean.append( CalendarUtil.getShortString(happeningsInRange.elementAt(j).getDate())
+					log( CalendarUtil.getShortString(happeningsInRange.elementAt(j).getDate())
 							+ "\t");
-					textArean.append(""
+					log(""
 							+ happeningsInRange.elementAt(j).getAmount() + "\t");
 					if (happeningsInRange.elementAt(j).getKommentar() == "") {
-						textArean.append("Kommentar saknas\n");
+						log("Kommentar saknas\n");
 					} else {
-						textArean.append(happeningsInRange.elementAt(j).getKommentar() + "\n");
+						log(happeningsInRange.elementAt(j).getKommentar() + "\n");
 					}
 				}// for
 			}// if
@@ -1038,7 +1135,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 
 	public boolean kollaGruppNamn(String benamning) {
 		if (benamning.length() == 0) {
-			textArean.append("\n" + "Du måste ange ett gruppnamn");
+			log("\n" + "Du måste ange ett gruppnamn");
 			return true;
 
 		}
@@ -1049,65 +1146,72 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				return false;
 			}
 		}
-		textArean.append("\n" + "Gruppen " + benamning + " finns ej.");
+		log("\n" + "Gruppen " + benamning + " finns ej.");
 		return true;
 	}
 
 	WindowListener fonsterLyssnare = new WindowAdapter() {
 		public void windowClosing(WindowEvent e) {
+			try {
 			saveWorkspace();
 			System.exit(0);
+			} catch (JSONException | URISyntaxException | IOException exc) {
+				exc.printStackTrace();
+				log("Could not save workspace");
+			}
 		}
-
 	};
 	
-	private void saveWorkspace(){
-		try{
-		String filePath = SavedData.getLastSavedWorkspace();
-		FileUtil.writeObjectToFile(workspace, filePath);
-		}catch(NullPointerException npe){
+	private void saveWorkspace() throws JSONException, URISyntaxException, IOException {
+		try {
+			String filePath = SavedData.getLastSavedWorkspace();
+			//FileUtil.writeObjectToFile(workspace, filePath);
+			FileUtil.writeJsonToFile(workspace.getJson(), filePath);
+		} catch(NullPointerException npe){
 			saveWorkspaceAs();
-		}catch(IOException ioe){
+		}
+	}
+	
+	private void saveWorkspaceAs() throws JSONException, URISyntaxException, IOException {
+		SavedData.setLastSavedWorkspace(FileUtil.writeJsonToUserSpecifiedFile(
+				getContentPane(), workspace.getJson()));
+		try {
+			SavedData.save();
+		} catch(IOException ioe) {
 			ioe.printStackTrace();
 		}
 	}
 	
-	private void saveWorkspaceAs(){
-		SavedData.setLastSavedWorkspace(FileUtil.writeObjectToUserSpecifiedFile(getContentPane(), workspace));
-		try{
-		SavedData.save();
-		}catch(IOException ioe){
-			ioe.printStackTrace();
-		}
-	}
-	
-	private void openLastUsedWorkspace(){
-		try{
-		SavedData.load(this);
-		if(SavedData.gotLastUsedWorkspace()){
-			this.showUpdateString("Loading workspace...");
-			workspace = (Workspace)FileUtil.readObjectFromFile(this, SavedData.getLastSavedWorkspace());
-		} else {
-			workspace = new Workspace();
-		}
-		}catch(IOException ioe){
+	private void openLastUsedWorkspace() {
+		try {
+			SavedData.load(this);
+			if(SavedData.gotLastUsedWorkspace()) {
+				this.showUpdateString("Loading workspace...");
+				//workspace = (Workspace)FileUtil.readObjectFromFile(this, SavedData.getLastSavedWorkspace());
+				try {
+					workspace = new Workspace(FileUtil.readFromJsonFile(SavedData.getLastSavedWorkspace()));
+				} catch(Exception e) {
+					e.printStackTrace();
+					workspace = new Workspace();
+				}
+			} else {
+				workspace = new Workspace();
+			}
+		} catch(IOException ioe) {
 			ioe.printStackTrace();
 			return;
-		}catch(ClassNotFoundException cnfe){
+		} catch(ClassNotFoundException cnfe) {
 			cnfe.printStackTrace();
 			return;
-		}catch(ClassCastException cce){
+		} catch(ClassCastException cce) {
 			cce.printStackTrace();
 			return;
 		}
-		showUpdateString("Viewing period: " + CalendarUtil.getShortString(workspace.showFrom) + " -> " + CalendarUtil.getShortString(workspace.showTo));
+		showUpdateString("Viewing period: " + CalendarUtil.getShortString(workspace.showFrom) + " - " + CalendarUtil.getShortString(workspace.showTo));
 		updateTotal();
 		updateAllMilestones();
 		uppdateraUtskriftsPanelen();
 	}
-
-
-
 
 	public void addStock(String name, int count, double price, Calendar date,
 			URL url, String groupName) {
@@ -1116,7 +1220,6 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 
 		all.addPost(stock);
 		all.addHappening(date, count * price);
-
 
 		if (isGroup(groupName)) {
 			((Grupp) workspace.poster.elementAt(getPostIndex(groupName)))
@@ -1141,7 +1244,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	}
 	
 	public void showUpdateString(String updateText) {
-		textArean.append(updateText + "\n");
+		log(updateText + "\n");
 	}
 	
 	public void setFilterDates(Calendar from, Calendar to) {
@@ -1152,21 +1255,14 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		uppdateraUtskriftsPanelen();
 	}
 	
-	public static void main(String[] args) throws IOException,
-	ClassNotFoundException {
-		
-
-
-		
-		
+	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		KalkylUI kalkylUI = new KalkylUI();
 		kalkylUI.openLastUsedWorkspace();
-	}// metod
+	}
 
 	public void stockUpdated() {
 		updateTotal();
 		uppdateraUtskriftsPanelen();
-		
 	}
 
 	public void setMilestone(Calendar date) {
@@ -1198,15 +1294,21 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		uppdateraUtskriftsPanelen();
 	}
 	
-	
-	
 	private double interestToday = 0;
 	public void reportInterest (String name, double add) {
 		interestToday += add;
 		showUpdateString("Ränta inrapporterad");
 		showUpdateString("Post: " + name);
 		showUpdateString("Ränta: " + add);
-		showUpdateString("Totalt hittils: " + interestToday);
+		showUpdateString("Totalt hittils: " + interestToday);  
+	}
+	
+	private void log(String message) {
+		textArean.append(message);
+		JViewport vp = textAreaScrollPane.getViewport();
+		Rectangle visible = vp.getVisibleRect();
+		visible.y = 99999999/*Just a big value*/;
+		vp.scrollRectToVisible(visible);
 	}
 	
 }// class
