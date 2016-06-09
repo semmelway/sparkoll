@@ -15,7 +15,7 @@ import com.roberthelmbro.util.CalendarUtil;
 /**
  * @author Robert Helmbro
  */
-public class VärdePost extends Post implements AddMilestoneUiListener {
+public class ValuePost extends Post implements AddMilestoneUiListener {
 	static final long serialVersionUID = 1;
 	
 	protected double value;
@@ -24,12 +24,12 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 	protected Calendar lastUppdateDate;
 	protected Vector<MileStone> mMilestones = new Vector<MileStone>();
 	
-	public VärdePost(String name, String groupName) {
+	public ValuePost(String name, String groupName) {
 		super(name);
 		this.groupName = groupName;
 	}
 	
-	public VärdePost(JSONObject json) throws JSONException {
+	public ValuePost(JSONObject json) throws JSONException {
 		super("");
 		name = json.getString("name");
 		value = json.getDouble("value");
@@ -96,8 +96,6 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 			}
 		}
 	}
-	
-	public void uppdateraVarde(KalkylUI kalkylUI){}
 	
 	public void addMileStone(Calendar date) {
 		new AddMilestoneUI(this, name, date,value);
@@ -360,7 +358,11 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 		try{
 			return  getMilestone(date).getValue();
 		} catch(IllegalArgumentException iae) {
-			if(date.getTimeInMillis() == lastUppdateDate.getTimeInMillis()){
+			String postName = this.name;
+			long wantedDate = date.getTimeInMillis();
+			long lastUpdateDate = lastUppdateDate.getTimeInMillis();
+			
+			if(wantedDate == lastUpdateDate) {
 				return value;
 			} else {
 			return 0;
@@ -408,6 +410,11 @@ public class VärdePost extends Post implements AddMilestoneUiListener {
 		}
 		// Then its not active
 		return false;
+	}
+
+	@Override
+	public void uppdateraVarde(KalkylUI kalkylUI, Calendar from, Calendar to) {
+		// Not implemented
 	}
 	
 

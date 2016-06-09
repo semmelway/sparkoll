@@ -22,7 +22,7 @@ import javax.swing.JFileChooser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.roberthelmbro.economy.PrintUpdate;
+import com.roberthelmbro.economy.KalkylUI;
 
 public class FileUtil {
 	
@@ -68,16 +68,16 @@ public class FileUtil {
 		utFil.close();
 	}
 	
-	public static String readStringFromFile(PrintUpdate statusListener, String filePath)
+	public static String readStringFromFile(KalkylUI statusListener, String filePath)
 	        throws IOException, ClassNotFoundException {
 		File sessionData = new File(filePath);
-		statusListener.showUpdateString("Reading from file: " + sessionData.getAbsolutePath());
+		statusListener.log("Reading from file: " + sessionData.getAbsolutePath());
 		String returnObject = null;
 		ObjectInputStream inFil = new ObjectInputStream(new FileInputStream(
 				sessionData));
 		returnObject = (String)inFil.readObject();
 		inFil.close();
-		statusListener.showUpdateString("Reading the file performed with success!");
+		statusListener.log("Reading the file performed with success!");
 		return returnObject;
 }
 //

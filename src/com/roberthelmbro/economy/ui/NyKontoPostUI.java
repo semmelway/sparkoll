@@ -105,22 +105,21 @@ public class NyKontoPostUI extends JFrame implements ActionListener {
 	
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource()==avbrytB){
+		if(e.getSource()==avbrytB) {
 			this.setVisible(false);
 		}
-		if (e.getSource()==sparaB){
-
+		if (e.getSource()==sparaB) {
 			meddelandeL.setText("inaktiv knapp");
 		}
 		
-		if(e.getSource()==sparaStangB){
+		if(e.getSource()==sparaStangB) {
 			
-			if(((String)namnT.getText()).length()==0)
-			{	meddelandeL.setText("Du måste ange ett namn");
+			if(((String)namnT.getText()).length()==0) {
+				meddelandeL.setText("Du måste ange ett namn");
 				return ;
 			}
 			
-			if(kalkyl.finsPost(namnT.getText())){
+			if(kalkyl.isPostName(namnT.getText())) {
 				meddelandeL.setText("Namnet måste vara unikt");
 				return;
 			}
@@ -135,7 +134,7 @@ public class NyKontoPostUI extends JFrame implements ActionListener {
 				return;
 			}
 
-			kalkyl.skapaKontoPost(namnT.getText(), Double.parseDouble(beloppT.getText()), CalendarUtil.parseString(datumT.getText()), gruppT.getText());
+			kalkyl.createKontoPost(namnT.getText(), Double.parseDouble(beloppT.getText()), CalendarUtil.parseString(datumT.getText()), gruppT.getText());
 			this.setVisible(false);
 		}		
 	}//actionperformed

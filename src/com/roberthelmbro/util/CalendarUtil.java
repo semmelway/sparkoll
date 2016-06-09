@@ -37,13 +37,18 @@ public class CalendarUtil {
 		GregorianCalendar now = new GregorianCalendar();
 		now.setTimeInMillis(System.currentTimeMillis());
 		
-		GregorianCalendar nowWithClearedClock = new GregorianCalendar();
+		GregorianCalendar nowWithClearedClock = new GregorianCalendar(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
 		
-		nowWithClearedClock.clear();
+		nowWithClearedClock.setTimeInMillis(nowWithClearedClock.getTimeInMillis());
 		
-		nowWithClearedClock.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
 		return nowWithClearedClock;
 	}
+	
+//	public static void main(String[] args) {
+//		Calendar cal = getTodayCalendarWithClearedClock();
+//		
+//		System.out.println(cal.getTimeInMillis());
+//	}
 	
 	public static Calendar parseString(String dateSt) throws IllegalArgumentException{
 		StringTokenizer dateT= new StringTokenizer(dateSt,"-");

@@ -9,20 +9,25 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.StringTokenizer;
+
+import com.roberthelmbro.economy.CurrencyUtil;
 
 public class GoldPriceFetcher {
 	
-	private static final String GOLD_PRICE_URL = "http://www.oanda.com/lang/sv/currency/table?exch=SEK&sel_list=XAU&value=1&format=ASCII&redirected=1";
-
 	private static double KG_PER_UNS = 0.0311;
 	
 	private static double PURITY = 0.75;
 	
+	private static double priceCashe = 0;
+	
 	public static double fetch() throws IOException, MalformedURLException {
-		//return 11204.7d/KG_PER_UNS;
-		return PURITY*sendRequest(GOLD_PRICE_URL)/KG_PER_UNS;
+		if (priceCashe == 0) {
+			double usdPerOuncePrice = sendRequest("https://www.quandl.com/api/v1/datasets/BUNDESBANK/BBK01_WT5511.csv");
+			priceCashe = CurrencyUtil.getMultiplicator("USD/SEK")*PURITY*usdPerOuncePrice/KG_PER_UNS;
+		}
+		return priceCashe;
 	}
-
 
 	private static double sendRequest(String urlString) throws MalformedURLException, IOException {
 		BufferedReader buffer= null;
@@ -42,35 +47,23 @@ public class GoldPriceFetcher {
 			if (inputStreamReader != null) inputStreamReader.close();
 		}
 	}
-	
+
 	private static double parseBuffer(BufferedReader buffer) throws IOException {
-		double result = -1;
-		do {
-			result = parseLine(buffer.readLine());
-		} while (result == -1);
+		String firstLine = buffer.readLine();
+		System.out.println(firstLine);
+		String secondLine = buffer.readLine();
+		double result = parseLine(secondLine);
+
 		return result;
 	}
 	
+	
 	private static double parseLine(String line) {
-		if(line.contains("Guld (uns)")) {
-			// Line found
-			line = line.substring(line.indexOf("XAU"));
-			line = line.replace("XAU", "");
-			while(true) {
-				if(line.charAt(0) == ' ') {
-					line = line.substring(1);
-				} else {
-					break;
-				}
-			}
-			line = line.substring(0,line.indexOf(" "));
-			line = line.replace("<span>", "");
-			line = line.replace("</span>", "");
-			return ParseUtil.parseDouble(line);
-		} else {
-			return -1d;
-		}
+		StringTokenizer parts = new StringTokenizer(line, ",");
+		parts.nextToken();
+		return Double.parseDouble(parts.nextToken());
 	}
+	
 	
 	public static void main(String[] args) {
 		

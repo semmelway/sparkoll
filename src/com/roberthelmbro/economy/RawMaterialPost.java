@@ -16,7 +16,7 @@ import com.roberthelmbro.util.CalendarUtil;
 import com.roberthelmbro.util.GoldPriceFetcher;
 import com.roberthelmbro.util.ParseUtil;
 
-public class RawMaterialPost extends VärdePost
+public class RawMaterialPost extends ValuePost
 {
 	static final long serialVersionUID = 4295043;
 	
@@ -53,8 +53,9 @@ public class RawMaterialPost extends VärdePost
 		for (int i = 0; i < jMilestones.length(); i++) {
 			mMilestones.add(new MileStone(jMilestones.getJSONObject(i)));
 		}
+		weight = json.getDouble("weight");
 		price = json.getDouble("price");
-		weight = json.getInt("weight");
+		
 	}
 
 	@Override
@@ -83,7 +84,8 @@ public class RawMaterialPost extends VärdePost
 		return json;
 	}
 
-	public void uppdateraVarde(KalkylUI kalkylUI) {
+	@Override
+	public void uppdateraVarde(KalkylUI kalkylUI, Calendar from, Calendar to) {
 		try {
 			if (name.equals("Guld")) {
 				setValue(CalendarUtil.getTodayCalendarWithClearedClock(), "" + GoldPriceFetcher.fetch());
@@ -106,7 +108,6 @@ public class RawMaterialPost extends VärdePost
 		System.out.println("setValue, price = " + priceString);
 		System.out.println("number of = " + weight);
 		
-		// Transform to SEK if fortum
 		double price = ParseUtil.parseDouble(priceString);
 		
 		

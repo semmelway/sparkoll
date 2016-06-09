@@ -8,11 +8,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CurrencyUtil {
+	
+	// USE http://finance.yahoo.com/webservice/v1/symbols/allcurrencies/quote?format=json&view=basic instead
 	
 	public static final String EUR = "EUR";
 	
@@ -21,6 +26,40 @@ public class CurrencyUtil {
 	public static final String GOLD = "XAU";
 	
 	public static final String GOOGLE_BASE_URI = "http://www.google.com.br/ig/calculator?q=";
+	
+	private static Map<String, Double> prices = new HashMap<String, Double>();
+	
+	private static boolean refreshPrices() {
+		prices = new HashMap<String, Double>();
+		try {
+			String respString = sendRequest(
+					"http://finance.yahoo.com/webservice/v1/symbols/allcurrencies/quote?format=json&view=basic");
+			JSONObject currencyDataJson = new JSONObject(respString);
+			JSONArray currenciesJson = currencyDataJson.getJSONObject("list").getJSONArray("resources");
+			
+			JSONObject currencyEntry;
+			for (int i = 0; i < currenciesJson.length(); i++) {
+				currencyEntry = currenciesJson.getJSONObject(i).getJSONObject("resource").getJSONObject("fields");
+				prices.put(currencyEntry.getString("name"), Double.parseDouble(currencyEntry.getString("price")));
+			}
+			prices.put("EUR/SEK", prices.get("USD/SEK")/prices.get("USD/EUR"));
+			return true;
+		} catch(Throwable t) {
+			t.printStackTrace();
+			return false;
+		}
+	}
+	
+	public static double getMultiplicator(String symbol) {
+		if (!prices.containsKey(symbol)) {
+			refreshPrices();
+		}
+		if (prices.containsKey(symbol)) {
+			return prices.get(symbol);
+		}
+		
+		return -1;
+	}
 	
 	public static double transform(String from, String to, double amount) throws IOException, MalformedURLException, JSONException {
 		
@@ -52,13 +91,21 @@ public class CurrencyUtil {
 		BufferedReader buffer= null;
 		InputStream inputStream = null;
 		InputStreamReader inputStreamReader = null;
+		String readLine = null;
+		StringBuilder resp = new StringBuilder("");
 		try {
 		
 		URL url = new URL(urlString);
 		inputStream = url.openStream();
 		inputStreamReader = new InputStreamReader(inputStream);
 		buffer = new BufferedReader(inputStreamReader);
-		return buffer.readLine();
+		
+		readLine = buffer.readLine();
+		while(readLine != null) {
+			resp.append(readLine);
+			readLine = buffer.readLine();
+		}
+		return resp.toString();
 		} finally {
 			if (buffer != null) buffer.close();
 			if (inputStream != null) inputStream.close();
@@ -92,10 +139,14 @@ public class CurrencyUtil {
 	
 	public static void main(String[] args) {
 		
-		try {
-			System.out.println(transform(GOLD, SEK, 1));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		refreshPrices();
+		
+//		try {
+//			System.out.println(transform(GOLD, SEK, 1));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
+	
+	public static String DUMMY_DATA = "{\"list\" : { \"meta\" : { \"type\" : \"resource-list\",\"start\" : 0,\"count\" : 174},\"resources\" : [{\"resource\" : { \"classname\" : \"Quote\",\"fields\" : { \"change\" : \"0.000080\",\"chg_percent\" : \"0.008919\",\"name\" : \"USD/EUR\",\"price\" : \"0.891584\",\"symbol\" : \"EUR=X\",\"ts\" : \"1463652773\",\"type\" : \"currency\",\"utctime\" : \"2016-05-19T10:12:53+0000\",\"volume\" : \"0\"}}},{\"resource\" : { \"classname\" : \"Quote\",\"fields\" : { \"change\" : \"-0.006249\",\"chg_percent\" : \"-0.074823\",\"name\" : \"USD/SEK\",\"price\" : \"8.346050\",\"symbol\" : \"SEK=X\",\"ts\" : \"1463652776\",\"type\" : \"currency\",\"utctime\" : \"2016-05-19T10:12:56+0000\",\"volume\" : \"0\"}}}]}}";
 }

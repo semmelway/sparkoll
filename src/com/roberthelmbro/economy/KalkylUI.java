@@ -53,9 +53,8 @@ import com.roberthelmbro.economy.ui.YearChooserUI;
 import com.roberthelmbro.util.CalendarUtil;
 import com.roberthelmbro.util.FileUtil;
 import com.roberthelmbro.util.FileUtil.JsonAndPath;
-import com.roberthelmbro.util.FileUtil.ObjectAndString;
 
-public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDateListener, StockInfoInputUiListener, PrintUpdate, YearChooserUiListener, DataUpdateListener  {
+public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDateListener, YearChooserUiListener, DataUpdateListener  {
 	static final long serialVersionUID = 0;
 	private Workspace workspace = new Workspace();
 	private Grupp all = new Grupp("all");
@@ -80,7 +79,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	private JMenuItem newRawMaterialPost = new JMenuItem("Ny råvarupost");
 
 	private JMenu loggM = new JMenu("Loggutskrifter");
-	private JMenuItem skrivOversyn = new JMenuItem("Skriv ut översyn");
+	private JMenuItem logOverview = new JMenuItem("Skriv ut översyn");
 	private JMenuItem skrivUtInsUtag = new JMenuItem("Skriv ut ins./utag");
 	private JMenuItem printMilestones = new JMenuItem("Skriv ut milstolpar");
 	
@@ -88,7 +87,6 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	private JMenuItem allMenuItem = new JMenuItem("Full");
 	private JMenuItem thisYearMenuItem = new JMenuItem("I år");
 	private JMenuItem period = new JMenuItem("Period");
-	
 
 	// Popup menus
 	private JPopupMenu popupMenyn = new JPopupMenu();
@@ -96,6 +94,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	private JMenuItem transactionTo = new JMenuItem("Överför till");
 	private JMenuItem edit = new JMenuItem("Redigera");
 	private JMenuItem radera = new JMenuItem("Radera");
+	private JMenuItem raderaT = new JMenuItem("Transformera till ny struktur");
 	private JMenuItem registreraInsUt = new JMenuItem("Registrera insättning eller utag");
 	private JMenuItem visaInsUt = new JMenuItem("Visa insättnigar & utag");
 	private JMenuItem removeTransaction = new JMenuItem("Radera insättning/utag");
@@ -170,10 +169,10 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		newRawMaterialPost.addActionListener(this);
 
 		menuBar.add(loggM);
-		loggM.add(skrivOversyn);
+		loggM.add(logOverview);
 		loggM.add(skrivUtInsUtag);
 		loggM.add(printMilestones);
-		skrivOversyn.addActionListener(this);
+		logOverview.addActionListener(this);
 		skrivUtInsUtag.addActionListener(this);
 		printMilestones.addActionListener(this);
 		
@@ -191,6 +190,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		popupMenyn.add(transactionTo);
 		popupMenyn.add(edit);
 		popupMenyn.add(radera);
+		popupMenyn.add(raderaT);
 		popupMenyn.add(registreraInsUt);
 		popupMenyn.add(visaInsUt);
 		popupMenyn.add(removeTransaction);
@@ -200,6 +200,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		transactionTo.addActionListener(this);
 		edit.addActionListener(this);
 		radera.addActionListener(this);
+		raderaT.addActionListener(this);
 		registreraInsUt.addActionListener(this);
 		visaInsUt.addActionListener(this);
 		removeTransaction.addActionListener(this);
@@ -259,23 +260,37 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				klickadPost = ((JLabel) e.getComponent()).getText();
 				if (klickadPost == "Summa" || klickadPost == "Post")
 					return;
-				if (kollaGruppNamn(klickadPost))
+				if (!isPostName(klickadPost))
 					return;
 
 				edit.setText("Redigera " + klickadPost);
 				radera.setText("Radera " + klickadPost);
+				raderaT.setText("Transformera " + klickadPost);
 				
-
-				if (isGroup(klickadPost)) {
-					registreraInsUt.setEnabled(false);
-					visaInsUt.setEnabled(false);
-					removeTransaction.setEnabled(false);
-					removeMilestone.setEnabled(false);
+				Post post = getValuePost(klickadPost);
+	
+				transactionFrom.setVisible(true);
+				transactionTo.setVisible(true);
+				edit.setVisible(true);
+				registreraInsUt.setVisible(true);
+				visaInsUt.setVisible(true);
+				removeTransaction.setVisible(true);
+				removeMilestone.setVisible(true);
+				
+				
+				if (klickadPost == null) {
+					// This is a group
+					transactionFrom.setVisible(false);
+					transactionTo.setVisible(false);
+					edit.setVisible(false);
+					registreraInsUt.setVisible(false);
+					visaInsUt.setVisible(false);
+					removeTransaction.setVisible(false);
+					removeMilestone.setVisible(false);
+				} else if(post instanceof AktiePost) {
+		
 				} else {
-					registreraInsUt.setEnabled(true);
-					visaInsUt.setEnabled(true);
-					removeTransaction.setEnabled(true);
-					removeMilestone.setEnabled(true);
+					edit.setVisible(false);
 				}
 				popupMenyn.show(e.getComponent(), e.getX(), e.getY());
 			}
@@ -325,21 +340,16 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 
 		if (e.getSource() == updateMenuItem) {
-
-			// uppdaterar alla VardePoster
-			for (int i = 0; i < workspace.poster.size(); i++) {
-				if (!isGroup(i)) {
-					VärdePost currentPost = (VärdePost)workspace.poster.get(i);
-					if (currentPost.isActive(workspace.showFrom, workspace.showTo)) {
-						((VärdePost) workspace.poster.elementAt(i)).uppdateraVarde(this);
-					}
+			for (Post rootPost : workspace.poster) {
+				String postName = rootPost.name;
+				if (rootPost.isActive(workspace.showFrom, workspace.showTo)) {
+					rootPost.uppdateraVarde(this, workspace.showFrom, workspace.showTo);
 				}
 			}
 			workspace.lastUpdateDate = CalendarUtil.getTodayCalendarWithClearedClock();
 			workspace.showTo = workspace.lastUpdateDate;
-			showUpdateString("Viewing period: " + CalendarUtil.getShortString(workspace.showFrom) + " -> " + CalendarUtil.getShortString(workspace.showTo));
+			log("Viewing period: " + CalendarUtil.getShortString(workspace.showFrom) + " -> " + CalendarUtil.getShortString(workspace.showTo));
 			uppdateraUtskriftsPanelen();
-			
 		} else if(e.getSource() == addMilestoneMenuItem) {
 			addMilestone();
 		}
@@ -347,7 +357,6 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			try {
 				saveWorkspace();
 			} catch (JSONException | URISyntaxException | IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			System.exit(0);
@@ -396,13 +405,10 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			}
 		}
 		
-		
-		
-		
-		
+
 		
 		// Logg utskrifter
-		if (e.getSource() == skrivOversyn) {
+		if (e.getSource() == logOverview) {
 			printTextSumary();
 		}
 		if (e.getSource() == skrivUtInsUtag) {
@@ -439,31 +445,35 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 		
 		if (e.getSource() == edit) {
-			if(isStock(klickadPost)){
-				new StockInfoInputUI(this, (AktiePost)getPost(klickadPost));
-			}
+			new StockInfoInputUI(this, (AktiePost)getValuePost(klickadPost));
 		}
 		if (e.getSource() == radera) {
+			Post rootPost;
+			for (int i = 0; i < workspace.poster.size(); i++) {
+				rootPost = workspace.poster.get(i);
+				if (rootPost instanceof Grupp) {
+					((Grupp)rootPost).removePost(klickadPost);
+					((Grupp)rootPost).updateTotal(workspace.showFrom, workspace.showFrom);
+				}
+				if (rootPost.getName().equals(klickadPost)) {
+					workspace.poster.removeElementAt(i);
+					log("\n" + klickadPost + " har tagits bort");
+				}
+			}
+			updateTotal();
+			updateAllMilestones();
+			uppdateraUtskriftsPanelen();
+		} else if (e.getSource() == raderaT) {
+			
 			Post post;
 			for (int i = 0; i < workspace.poster.size(); i++) {
 				post = workspace.poster.get(i);
-				if (post instanceof Grupp) {
-					((Grupp)post).removePost(klickadPost);
-					((Grupp)post).updateTotal(workspace.showFrom, workspace.showFrom);
-				}
 				if (((String) (((Post) post).getName()))
 						.equals(klickadPost)) {
-					if (post instanceof Grupp) {
-						for (int j = i + 1; j <= i
-								+ ((Grupp) post).getPoster()
-										.size(); j++) {
-							workspace.poster.remove(i + 1);
-						}
 
-					}
 					workspace.poster.removeElementAt(i);
 					log("\nGruppen " + klickadPost
-							+ " har tagits bort");
+							+ " har transformerats");
 				}
 			}
 			updateTotal();
@@ -526,51 +536,16 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 //		commandT.setText("");
 	}
 
-	private void showYearChooserUI() {
-		MileStone[] possibleChoises = new MileStone[allMilestoneDates.size() + 1];
-		
-		for (int i = 0; i < allMilestoneDates.size(); i++) {
-			possibleChoises[i] = allMilestoneDates.get(i);
-		}
-
-		possibleChoises[possibleChoises.length -1] = new MileStone(workspace.lastUpdateDate) ;
-		new YearChooserUI(this, possibleChoises);
-	}
-
-	private void printAllMilestones() {
-		showUpdateString("Visar alla milstolpar: ");
-		
-		Vector<Post> items = workspace.poster;
-		Post item;
-		Vector<MileStone> milestones;
-		
-		for(int i = 0; i < items.size(); i++) {
-			if(!isGroup(i)){
-				item = items.elementAt(i);
-				showUpdateString(item.getName() + ":");
-				milestones = ((VärdePost)item).getMilestones();
-				for(int j = 0; j < milestones.size(); j++) {
-					showUpdateString(CalendarUtil.getShortString(milestones.get(j)) + " \t\t" + milestones.get(j).getValue());
+	private ValuePost getValuePost(String label) {
+		for (Post rootPost : workspace.poster) {
+			 if (rootPost instanceof Grupp) {
+				for (ValuePost childPost : ((Grupp)rootPost).getPoster()) {
+					if (label.equals(childPost.getName())) {
+						return childPost;
+					}
 				}
-			}
-		}
-	}
-
-	public boolean isStock(String label) {
-		for(int i = 0; i < workspace.poster.size(); i++) {
-			if(label.equals(workspace.poster.elementAt(i).getName())) {
-				if(workspace.poster.elementAt(i) instanceof AktiePost) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	public Post getPost(String label) {
-		for(int i = 0; i < workspace.poster.size(); i++) {
-			if(label.equals(workspace.poster.elementAt(i).getName())) {
-				return workspace.poster.elementAt(i);
+			} else if (label.equals(rootPost.getName())) {
+				return (ValuePost)rootPost;
 			}
 		}
 		return null;
@@ -584,7 +559,38 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				utskriftsPanel.add(utskriftsLabel[i][j]);
 			}
 	}
+	
+	public double setValue(double value, String unit, String typ, int rad, int column, int decimalCount) {
+		double roundedValue;
+		if (decimalCount == 0) {
+			roundedValue = Math.round(value);
+		} else {
+			roundedValue = Math.round(value * (double)decimalCount * (double)10) / (double)(decimalCount * 10);
+		}
+		if (unit == null) {
+			setText(roundedValue, typ, rad, column);
+		} else {
+			setText(roundedValue + " " + unit, typ, rad, column);
+		}
+		return roundedValue;
+	}
+	
+	private static double round(double value, int decimalCount) {
+		return Math.round(value * (double)decimalCount * (double)10) / (double)(decimalCount * 10);
+	}
 
+	public void setColoredValue(double value, String unit, String typ, int rad, int column, int decimalCount) {
+		
+		double roundedValue = setValue(value, unit, typ, rad, column, decimalCount);
+		if(roundedValue > 0){
+			utskriftsLabel[rad][column].setForeground(greenText);
+		} else if( roundedValue  < -0.0001d){
+			utskriftsLabel[rad][column].setForeground(redText);
+		} else {
+			utskriftsLabel[rad][column].setForeground(blackText);
+		}
+	}
+	
 	public void setText(Object text, String typ, int rad, int kolumn) {
 		String textString = "";
 		String firstPart;
@@ -638,35 +644,54 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		utskriftsLabel[rad][kolumn].setText(textString);
 		return;
 	}
+	
+	private void showYearChooserUI() {
+		MileStone[] possibleChoises = new MileStone[allMilestoneDates.size() + 1];
+		
+		for (int i = 0; i < allMilestoneDates.size(); i++) {
+			possibleChoises[i] = allMilestoneDates.get(i);
+		}
+
+		possibleChoises[possibleChoises.length -1] = new MileStone(workspace.lastUpdateDate) ;
+		new YearChooserUI(this, possibleChoises);
+	}
 
 	public void updateTotal() {
 		all = new Grupp("all");
 		Calendar from = workspace.showFrom;
 		Calendar to = workspace.showTo;
 
-		for (int i = 0; i < workspace.poster.size(); i++) {
-			if (isGroup(i)) {
-				((Grupp)workspace.poster.elementAt(i)).updateTotal(from, to);
+		for (Post rootPost : workspace.poster) {
+			if (rootPost instanceof Grupp) {
+				((Grupp)rootPost).updateTotal(from, to);
+				for(ValuePost childPost : ((Grupp)rootPost).getPoster()) {
+					all.addPost(childPost);
+				}
 			} else {
-				all.addPost((VärdePost)workspace.poster.elementAt(i));
+				all.addPost((ValuePost)rootPost);
 			}
 		}
 		all.updateTotal(from, to);
 	}
 	
 	public void updateAllMilestones() {
-		Vector<Post> poster = workspace.poster;
-		Post post;
-		VärdePost valuePost;
+		// TODO Test this one
+		ValuePost valuePost;
 		Vector<MileStone> mileStones;
 		
-		for (int i = 0; i < poster.size(); i++) {
-			post = poster.get(i);
-			if(post instanceof VärdePost){
-				valuePost = (VärdePost)post;
+		for (Post rootPost : workspace.poster) {
+			if(rootPost instanceof ValuePost){
+				valuePost = (ValuePost)rootPost;
 				mileStones = valuePost.getMilestones();
 				for (int j = 0; j < mileStones.size(); j++) {
 					setToAllMilestones(mileStones.get(j));
+				}
+			} else if (rootPost instanceof Grupp) {
+				for (ValuePost childPost : ((Grupp)rootPost).getPoster()) {
+					mileStones = childPost.getMilestones();
+					for (int j = 0; j < mileStones.size(); j++) {
+						setToAllMilestones(mileStones.get(j));
+					}
 				}
 			}
 		}
@@ -687,201 +712,226 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			}
 		}
 	}
-
-	public void uppdateraUtskriftsPanelen() {
-		rensaPanelen();
-		
-		Calendar from = workspace.showFrom;
-		Calendar to = workspace.showTo;
-
-		titleLabel.setText(CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
-		
-		
-		int antal = workspace.poster.size();
-		int decr = 0;
-		// *******************************Gruppnamn****************************************
-		int kolumn = 0;
-
-		setText("Post", "rubrik", 0, kolumn);
-		for (int i = 0; i < antal; i++) {
-			Post currentPost = workspace.poster.get(i);
-			if (currentPost.isActive(from, to)) {
-			setText(currentPost.getName(), currentPost.name, i + 2 - decr, kolumn);
-			} else {
-				decr++;
-			}
-		}
-
-		setText("Totalt", "rubrik", antal + 2 - decr, kolumn);
-
-		// *******************************Varde****************************************
-		kolumn = 1;
-		decr = 0;
-		setText("Varde", "rubrik", 0, kolumn);
-		for (int i = 0; i < antal; i++) {
-			Post currentPost = workspace.poster.get(i);
-			if (currentPost.isActive(from, to)) {
-			setText(new Long(Math.round(currentPost.getValue(to))).intValue(),
-					currentPost.name, i + 2 - decr, kolumn);
-		} else {
-			decr++;
-		}
-		}
-		setText(new Long(Math.round(all.getValue(to))).intValue(), "group", antal + 2 - decr, kolumn);
-
-		// *******************************Fardelning****************************************
-		kolumn = 2;
-		setText("Fardelning", "rubrik", 0, kolumn);
-		decr = 0;
-		double tio = 10;
-		for (int i = 0; i < antal; i++) {
-			Post currentPost = workspace.poster.get(i);
-			if (currentPost.isActive(from, to)) {
-			double pr = currentPost.getValue(to)
-					/ (all.getValue(to) * 0.01);
-
-			setText("" + Math.round(pr*10)/tio + " %", workspace.poster.elementAt(i).name, i + 2 - decr,
-					kolumn);
-			} else {
-				decr++;
-			}
-
-		}
-
-		// *******************************Effektiv_årsränta*************************
-		kolumn = 3;
-		setText("Effektiv årsränta", "rubrik", 0, kolumn);
-		decr = 0;
-		for (int i = 0; i < antal; i++) {
-			Post currentPost = workspace.poster.get(i);
-			if(currentPost.isActive(from, to)) {
-				double ranta = currentPost.getInterest(from, to);
-				ranta = round(ranta);
-				setText("" + ranta + " %", currentPost.name, i + 2 - decr,
-						kolumn);
-				if(ranta > 0){
-					utskriftsLabel[i+2 - decr][kolumn].setForeground(greenText);
-				} else if( ranta  < -0.1d){
-					utskriftsLabel[i+2 - decr][kolumn].setForeground(redText);
-				} else {
-					utskriftsLabel[i+2 - decr][kolumn].setForeground(blackText);
+	
+	public void ins(String postName, double amount, Calendar date, String comment) {
+		// TODO Test this one
+		all.addHappening(null, date, amount, comment);
+		for (Post rootPost : workspace.poster) {
+			if(rootPost instanceof Grupp) {
+				if(((Grupp)rootPost).contains(postName)){
+					((Grupp)rootPost).addHappening(postName, date, amount, comment);
 				}
 			} else {
-				decr++;
+				if ((((Post) rootPost).getName()).equals(postName)) {
+					((ValuePost) rootPost).addHappening(date,
+							amount, comment);
+					log("\nInsättning har registrerats. \nBelopp: "
+							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nGrupp:  "
+							+ postName + "\nKommentar:" + comment + "\n");
+				}
 			}
 		}
-		double totalInterest = round(all.getInterest(from, to));
-		setText("" + totalInterest + " %", "group", antal + 2 - decr,
-				kolumn);
-		if(totalInterest > 0){
-		    utskriftsLabel[antal+2 - decr][kolumn].setForeground(greenText);
-		} else if( totalInterest  < -0.1d){
-			utskriftsLabel[antal+2 - decr][kolumn].setForeground(redText);
-		} else {
-			utskriftsLabel[antal+2 - decr][kolumn].setForeground(blackText);
-		}
-
-		// *******************************Avkastning****************************************
-		kolumn = 4;
-		setText("Avkastning", "rubrik", 0, kolumn);
-		double revenue;
-		decr = 0;
-		for (int i = 0; i < antal; i++) {
-			Post currentPost = workspace.poster.get(i);
-			if(currentPost.isActive(from, to)) {
-			revenue = Math.round((currentPost.getValue(to) - currentPost
-					.getTotalAmount(from, to)));
-			setText(revenue, currentPost.name,
-					i + 2 - decr, kolumn);
-			if(revenue > 0){
-			    utskriftsLabel[i+2 - decr][kolumn].setForeground(greenText);
-			} else if( revenue  < -1){
-				utskriftsLabel[i+2 - decr][kolumn].setForeground(redText);
-			} else {
-				utskriftsLabel[i+2 - decr][kolumn].setForeground(blackText);
-			}
-			} else {
-				decr++;
-			}
-		}
-		double totalRevenue = Math.round(all.getValue(to) - all.getTotalAmount(from, to));
-		setText(totalRevenue, "group",
-				antal + 2 - decr, kolumn);
-		if(totalRevenue > 0){
-		    utskriftsLabel[antal+2 - decr][kolumn].setForeground(greenText);
-		} else if( totalRevenue  < -1){
-			utskriftsLabel[antal+2 - decr][kolumn].setForeground(redText);
-		}
-		
-		// *******************************Avkastning****************************************
-		kolumn = 5;
-		setText("Transaktioner", "rubrik", 0, kolumn);
-		decr = 0;
-		for (int i = 0; i < antal; i++) {
-			Post currentPost = workspace.poster.get(i);
-			if(currentPost.isActive(from, to)) {
-				double balance = Math.round(( currentPost.getTotalAmount(from, to) - currentPost.getMilestoneValue(from)));
-			setText(balance, currentPost.name,
-					i + 2 - decr, kolumn);
-			} else {
-				decr++;
-			}
-		}
-		double totalBalance= Math.round(all.getTotalAmount(from, to) - all.getMilestoneValue(from));
-		setText(totalBalance, "group",
-				antal + 2 - decr, kolumn);
-		if(totalBalance > 0){
-		    utskriftsLabel[antal+2 - decr][kolumn].setForeground(greenText);
-		} else if( totalBalance  < -1){
-			utskriftsLabel[antal+2 - decr][kolumn].setForeground(redText);
-		}
-		
+		uppdateraUtskriftsPanelen();
 	}
-
+	
 	public boolean isGroup(int index) {
 		if (workspace.poster.elementAt(index) instanceof Grupp)
 			return true;
 		return false;
 	}
 
-	public void ins(String benamning, double amount, Calendar datum,
-			String kommentar) {
-		// uppdatera kalkyl posten
-		all.addHappening(datum, amount);
-		for (int i = 0; i < workspace.poster.size(); i++) {
-			if(isGroup(i)) {
-				if(((Grupp)workspace.poster.elementAt(i)).contains(benamning)){
-					((Grupp)workspace.poster.elementAt(i)).addHappening(datum, amount);
-				}
-			} else {
-				if ((((Post) workspace.poster.elementAt(i)).getName()).equals(benamning)) {
-					((VärdePost) workspace.poster.elementAt(i)).addHappening(datum,
-							amount, kommentar);
-					log("\n\nInsättning har registrerats. \nBelopp: "
-							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(datum) + "\nGrupp:  "
-							+ benamning + "\nKommentar:" + kommentar + "\n");
+	public void uppdateraUtskriftsPanelen() {
+		rensaPanelen();
+
+		Calendar from = workspace.showFrom;
+		Calendar to = workspace.showTo;
+
+		titleLabel.setText(CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
+		
+		log("Procentuell utveckling under perioden:");
+		
+		double allValue = all.getValue(to);
+		double allValueStart = all.getValue(from);
+		double allTransactions = all.getTotalAmount(from, to) - allValueStart;
+		double allRevenue = allValue - allTransactions - allValueStart;
+		log("Totalt: " + round((100 * allRevenue / (allValueStart + allTransactions))) + " %");
+		
+		int antal = workspace.poster.size();
+		
+		for (int i = 0; i < antal; i++) {
+			Post currentPost = workspace.poster.get(i);
+			if (currentPost.isActive(from, to)) {
+				if (isGroup(i)) {
+					double value = currentPost.getValue(to);
+					double valueStart = currentPost.getValue(from);
+					double transactions = currentPost.getTotalAmount(from, to) - valueStart;
+					double revenue = value - transactions - valueStart;
+					log(currentPost.getName() + ": " + round((100 * revenue / (valueStart + transactions))) + " %");
 				}
 			}
 		}
-		uppdateraUtskriftsPanelen();
-	}
 
-	public void utag(String benamning, double amount, Calendar datum,
-			String kommentar) {
-		// uppdatera kalkyl posten
-		all.addHappening(datum,(-1 * amount));
-		for (int i = 0; i < workspace.poster.size(); i++) {
-			if(isGroup(i)) {
-				if(((Grupp)workspace.poster.elementAt(i)).contains(benamning)){
-					((Grupp)workspace.poster.elementAt(i)).addHappening(datum,(-1 * amount));
+		
+		int offset = 2; // "Dynamic" values start at row with index 2
+		// ******************************* Name ****************************************
+		int c = 0;
+
+		setText("Innehav", "rubrik", 0, c);
+		for (int i = 0; i < antal; i++) {
+			Post currentPost = workspace.poster.get(i);
+			if (currentPost.isActive(from, to)) {
+				setText(currentPost.getName(), currentPost.name, i + offset, c);
+				if (isGroup(i)) {
+					List<ValuePost> groupPosts = ((Grupp)currentPost).getPosts(from, to);
+					for (ValuePost värdePost : groupPosts) {
+						offset++;
+						setText(värdePost.getName(), "", i + offset, c);
+					}
 				}
 			} else {
-				if ((((Post) workspace.poster.elementAt(i)).getName()).equals(benamning)) {
-					((VärdePost) workspace.poster.elementAt(i)).addHappening(datum,
-							(-1 * amount), kommentar);
-					log("\n\nUtag har registrerats. \nBelopp: "
-							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(datum) + "\nGrupp:  "
-							+ benamning + "\nKommentar:" + kommentar + "\n");
+				offset--;
+			}
+		}
+		setText("Totalt", "rubrik", antal + offset, c);
+
+		// ******************************* Value ****************************************
+		c = 1;
+		offset = 2;
+		setText("Marknadspris", "rubrik", 0, c);
+		for (int i = 0; i < antal; i++) {
+			Post currentPost = workspace.poster.get(i);
+			if (currentPost.isActive(from, to)) {
+				setText(new Long(Math.round(currentPost.getValue(to))).intValue(),
+						currentPost.name, i + offset, c);
+				if (isGroup(i)) {
+					List<ValuePost> groupPosts = ((Grupp)currentPost).getPosts(from, to);
+					for (ValuePost värdePost : groupPosts) {
+						offset++;
+						setText(new Long(Math.round(värdePost.getValue(to))).intValue(), "", i + offset, c);
+					}
+				}
+			} else {
+				offset--;
+			}
+		}
+		setText(new Long(Math.round(all.getValue(to))).intValue(), "group", antal + offset, c);
+
+		// ******************************* Allocation ****************************************
+		c = 2;
+		setText("Fördelning", "rubrik", 0, c);
+		offset = 2;
+		double tio = 10;
+		for (int i = 0; i < antal; i++) {
+			Post currentPost = workspace.poster.get(i);
+			if (currentPost.isActive(from, to)) {
+				double pr = currentPost.getValue(to) / (all.getValue(to) * 0.01);
+				setText(Math.round(pr*10)/tio + " %", currentPost.name, i + offset,	c);
+				if (isGroup(i)) {
+					List<ValuePost> groupPosts = ((Grupp)currentPost).getPosts(from, to);
+					for (ValuePost värdePost : groupPosts) {
+						offset++;
+						pr = värdePost.getValue(to) / (all.getValue(to) * 0.01);
+						setText(Math.round(pr*10)/tio + " %", "", i + offset, c);
+					}
+				}
+			} else {
+				offset--;
+			}
+		}
+
+		// ******************************* Yield *************************
+		c = 3;
+		setText("Effektiv årsränta", "rubrik", 0, c);
+		offset = 2;
+		for (int i = 0; i < antal; i++) {
+			Post currentPost = workspace.poster.get(i);
+			if(currentPost.isActive(from, to)) {
+				double ranta = currentPost.getInterest(from, to);
+				setColoredValue(ranta, "%", currentPost.name, i + offset, c, 1);
+				if (isGroup(i)) {
+					List<ValuePost> groupPosts = ((Grupp)currentPost).getPosts(from, to);
+					for (ValuePost värdePost : groupPosts) {
+						offset++;
+						ranta = värdePost.getInterest(from, to);
+						setColoredValue(ranta, "%", "", i + offset, c, 1);
+					}
+				}
+
+			} else {
+				offset--;
+			}
+		}
+		double totalInterest = all.getInterest(from, to);
+		setColoredValue(totalInterest, "%", "group", antal + offset, c, 1);
+
+		// ******************************* Revenue ****************************************
+		c = 4;
+		setText("Avkastning", "rubrik", 0, c);
+		double revenue;
+		offset = 2;
+		for (int i = 0; i < antal; i++) {
+			Post currentPost = workspace.poster.get(i);
+			if(currentPost.isActive(from, to)) {
+				revenue = (currentPost.getValue(to) - currentPost
+						.getTotalAmount(from, to));
+				setColoredValue(revenue, null, currentPost.name, i + offset, c, 1);
+				if (isGroup(i)) {
+					List<ValuePost> groupPosts = ((Grupp)currentPost).getPosts(from, to);
+					for (ValuePost värdePost : groupPosts) {
+						offset++;
+						revenue = (värdePost.getValue(to) - värdePost
+								.getTotalAmount(from, to));
+						setColoredValue(revenue, null, "", i + offset, c, 1);
+					}
+				}
+			} else {
+				offset--;
+			}
+		}
+		double totalRevenue = all.getValue(to) - all.getTotalAmount(from, to);
+		setColoredValue(totalRevenue, null, "group", antal + offset, c, 0);
+
+		// ******************************* Transactions ****************************************
+		c = 5;
+		setText("Transaktioner", "rubrik", 0, c);
+		offset = 2;
+		for (int i = 0; i < antal; i++) {
+			Post currentPost = workspace.poster.get(i);
+			if(currentPost.isActive(from, to)) {
+				double balance = currentPost.getTotalAmount(from, to) - currentPost.getMilestoneValue(from);
+				setValue(balance, null, currentPost.name, i + offset, c, 0);
+				if (isGroup(i)) {
+					List<ValuePost> groupPosts = ((Grupp)currentPost).getPosts(from, to);
+					for (ValuePost värdePost : groupPosts) {
+						offset++;
+						balance = värdePost.getTotalAmount(from, to) - värdePost.getMilestoneValue(from);
+						setValue(balance, null, "", i + offset, c, 0);
+					}
+				}
+			} else {
+				offset--;
+			}
+		}
+		double totalBalance = all.getTotalAmount(from, to) - all.getMilestoneValue(from);
+		setValue(totalBalance, null, "group", antal + offset, c, 0);
+	}
+
+	public void utag(String postName, double amount, Calendar date,	String comment) {
+		// TODO Test this one
+		amount = -1 * amount;
+		all.addHappening(null, date, amount, comment);
+		for (Post rootPost : workspace.poster) {
+			if(rootPost instanceof Grupp) {
+				if(((Grupp)rootPost).contains(postName)){
+					((Grupp)rootPost).addHappening(postName, date, amount, comment);
+				}
+			} else {
+				if ((((Post) rootPost).getName()).equals(postName)) {
+					((ValuePost) rootPost).addHappening(date,
+							amount, comment);
+					log("\nUttag har registrerats. \nBelopp: "
+							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nGrupp:  "
+							+ postName + "\nKommentar:" + comment + "\n");
 				}
 			}
 		}
@@ -889,35 +939,40 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	}
 	
 	public void transaction(String from, String to, double amount, Calendar date, String comment) {
-		all.addHappening(date, amount);
-		all.addHappening(date, (-1 * amount));
-		
+		all.addHappening(null, date, amount, comment);
+		all.addHappening(null, date, (-1 * amount), comment);
 		Grupp currentGroup;
-		VärdePost currentPost;
-		for (int i = 0; i < workspace.poster.size(); i++) {
-			if (isGroup(i)) {
-				currentGroup = (Grupp)workspace.poster.elementAt(i);	
-				if (currentGroup.getName().equals(from)) {
-					currentGroup.addHappening(date, (-1 * amount));
-				} else if (currentGroup.getName().equals(to)) {
-					currentGroup.addHappening(date, amount);
-				}
-			} else {
-				currentPost = (VärdePost)workspace.poster.elementAt(i);
-				if (currentPost.getName().equals(from)) {
-					currentPost.addHappening(date, (-1 * amount), comment);
-					log("\n\nUtag har registrerats. \nBelopp: "
+		for (Post rootPost : workspace.poster) {
+			if (rootPost instanceof Grupp) {
+				currentGroup = (Grupp)rootPost;	
+				if (currentGroup.contains(from)) {
+					currentGroup.addHappening(from, date, (-1 * amount), comment);
+					log("\nUttag har registrerats. \nBelopp: "
 							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nPost:  "
 							+ from + "\nKommentar:" + comment + "\n");
-				} else if (currentPost.getName().equals(to)) {
-					currentPost.addHappening(date, amount, comment);
-					log("\n\nInsättning har registrerats. \nBelopp: "
+				
+				}
+				if (currentGroup.contains(to)) {
+					currentGroup.addHappening(to, date, amount, comment);
+					log("\nInsättning har registrerats. \nBelopp: "
+							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nPost:  "
+							+ to + "\nKommentar:" + comment + "\n");
+				
+				}
+			} else {
+				if (rootPost.getName().equals(from)) {
+					((ValuePost)rootPost).addHappening(date, (-1 * amount), comment);
+					log("\nUttag har registrerats. \nBelopp: "
+							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nPost:  "
+							+ from + "\nKommentar:" + comment + "\n");
+				} else if (rootPost.getName().equals(to)) {
+					((ValuePost)rootPost).addHappening(date, amount, comment);
+					log("\nInsättning har registrerats. \nBelopp: "
 							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nPost:  "
 							+ to + "\nKommentar:" + comment + "\n");
 				}
 			}
 		}
-		
 		uppdateraUtskriftsPanelen();
 	}
 
@@ -935,69 +990,99 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		Calendar from = workspace.showFrom;
 		Calendar to = workspace.showTo;
 
+		// TODO Fix tabs
 		int antal = workspace.poster.size();
 
 		if (antal == 0) {
 			log("\nDet finns inga poster att visa");
 			return;
-			
 		}
+		
+		
 		
 		log("\n\nEkonomisk situation för perioden ");
 		log(CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
 		
-		// *******************************Gruppnamn****************************************
-		log("\nGrupp:\t");
-
-		for (int i = 0; i < antal; i++) {
-			log(
-					ellipsize(((Post) workspace.poster.elementAt(i)).getName(),12)
-					+ "\t");
+		//List<List<String>> rows = new LinkedList<List<String>>();
+		
+//		List<String> row1 = new LinkedList<String>();
+//		
+//		// ******************************* Name ****************************************
+//		
+//		for (Post rootPost : workspace.poster) {
+//			
+//			rows.add(new LinkedList<String>)rootPost.getName());
+//			rows.
+//			if (rootPost instanceof Grupp) {
+//				for (VärdePost childPost : ((Grupp) rootPost).getPoster()) {
+//					names.add(ellipsize(childPost.getName(),12));
+//				}
+//			}
+//		}
+//		log("Totalt");
+//		names.add("Totalt");
+//
+//		// ******************************* Value ****************************************
+//		log("\nDagsvärde:\t");
+//		for (Post rootPost : workspace.poster) {
+//			log(Math.round((rootPost).getValue(to))	+ "\t");
+//			if (rootPost instanceof Grupp) {
+//				for (VärdePost childPost : ((Grupp) rootPost).getPoster()) {
+//					log(Math.round((childPost).getValue(to))	+ "\t");
+//				}
+//			}
+//		}
+//		log("" + Math.round(all.getValue(to)));
+//
+//		// ******************************* Allocation ****************************************
+//		log("\nFördelning:\t");
+//		double tio = 10;
+//		for (Post rootPost : workspace.poster) {
+//			double pr = (rootPost).getValue(to) / (all.getValue(to) * 0.01);
+//			pr = Math.round(pr * 10) / tio;
+//			log("" + pr + " %" + "\t");
+//			if (rootPost instanceof Grupp) {
+//				for (VärdePost childPost : ((Grupp) rootPost).getPoster()) {
+//					pr = (childPost).getValue(to) / (all.getValue(to) * 0.01);
+//					pr = Math.round(pr * 10) / tio;
+//					log(pr + " %\t");				}
+//			}
+//		}
+//
+//		// ******************************* Yield ********************************
+//		log("\nRänta:\t");
+//
+//		for (Post rootPost : workspace.poster) {
+//			double ranta = (rootPost).getInterest(from, to);
+//			log("" + Math.round(ranta * 10) / tio + " %" + "\t");
+//			if (rootPost instanceof Grupp) {
+//				for (VärdePost childPost : ((Grupp) rootPost).getPoster()) {
+//					log(Math.round((childPost).getValue(to))	+ "\t");
+//				}
+//			}
+//		}
+//		textArean.append(Math.round(10 * all.getInterest(from, to)) / tio + " %");
+//
+//		// ******************************* Revenue ****************************************
+//		log("\nAvkastning:\t");
+//		for (Post rootPost : workspace.poster) {
+//			log(Math.round((rootPost.getValue(to) - rootPost.getTotalAmount(from, to))) + "\t");
+//			if (rootPost instanceof Grupp) {
+//				for (VärdePost childPost : ((Grupp) rootPost).getPoster()) {
+//					log(Math.round((childPost.getValue(to) - childPost.getTotalAmount(from, to))) + "\t");
+//					}
+//			}
+//		}
+//		log(Math.round(all.getValue(to) - all.getTotalAmount(from, to)) + "\n\n");
+//		
+//		
+		
+		for (int  i = 0 ; i < antalRader; i++) {
+			for (int j = 0; j < antalKolumner; j++) {
+				textArean.append(utskriftsLabel[i][j].getText() + "\t");
+			}
+			textArean.append("\n");
 		}
-		log("Totalt");
-
-		// *******************************Varde****************************************
-
-		log("\nDagsvarde:\t");
-		for (int i = 0; i < antal; i++) {
-			log("" + Math.round(((Post) workspace.poster.elementAt(i)).getValue(to))
-					+ "\t");
-		}
-		log("" + Math.round(all.getValue(to)));
-
-		// ******************************* Fardelning ****************************************
-
-		log("\nFardelning:\t");
-		double tio = 10;
-		for (int i = 0; i < antal; i++) {
-			double pr = ((Post) workspace.poster.elementAt(i)).getValue(to)
-					/ (all.getValue(to) * 0.01);
-			pr = Math.round(pr * 10) / tio;
-			log("" + pr + " %" + "\t");
-		}
-
-		// ******************************* Effektiv Årsränta ********************************
-		log("\nRänta:\t");
-
-		for (int i = 0; i < antal; i++) {
-			double ranta = ((Post) workspace.poster.elementAt(i)).getInterest(from, to);
-
-			log("" + Math.round(ranta * 10) / tio + " %" + "\t");
-		}
-		textArean
-				.append("" + Math.round(10 * all.getInterest(from, to)) / tio + " %");
-
-		// ******************************* Avkastning ****************************************
-		log("\nAvkastning:\t");
-		for (int i = 0; i < antal; i++) {
-			log(""
-					+ Math.round((workspace.poster.elementAt(i).getValue(to) - workspace.poster.elementAt(i)
-							.getTotalAmount(from, to))) + "\t");
-		}
-		log("" + Math.round(all.getValue(to) - all.getTotalAmount(from, to)) + "\n\n");
-
-		// *******************************Avkastning
-		// slut****************************************
 	}
 	
 	private String ellipsize(String stringToEllipsize, int length){
@@ -1010,57 +1095,70 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	public void skapaGrupp(String namn) {
 		Grupp tempGrupp = new Grupp(namn);
 		workspace.poster.addElement(tempGrupp);
-
 	}
 
+	public void createKontoPost(String namn, double belopp, Calendar date,
+			String groupName) {
+		// TODO Test this one
+		KontoPost newPost = new KontoPost(namn, groupName, belopp, date);
+		newPost.setValue(CalendarUtil.getTodayCalendarWithClearedClock(), belopp);
 
-
-	public void skapaKontoPost(String namn, double belopp, Calendar date,
-			String grupp) {
-		KontoPost tempKontoPost = new KontoPost(namn, grupp, belopp, date);
-		tempKontoPost.setValue(CalendarUtil.getTodayCalendarWithClearedClock(), belopp);
-
-		all.addPost(tempKontoPost);
-		all.addHappening(date, belopp);
-		
-		if (isGroup(grupp)) {
-			((Grupp) workspace.poster.elementAt(getPostIndex(grupp)))
-					.addPost(tempKontoPost);
-			((Grupp) workspace.poster.elementAt(getPostIndex(grupp))).addHappening(date, belopp);
-			workspace.poster.add(getPostIndex(grupp) + 1, tempKontoPost);
+		Grupp group = getGroup(groupName);
+		if (group != null) {
+			group.addPost(newPost);
+			group.addHappening(null, date, belopp, "");
 		} else {
-			workspace.poster.add(0,tempKontoPost);
+			workspace.poster.add(0,newPost);
 		}
+		
+		all.addPost(newPost);
+		all.addHappening(null, date, belopp, "");
 		uppdateraUtskriftsPanelen();
 	}
 	
-
 	public void createRawMaterialPost(String name, double price, double weight, Calendar date,
-			String grupp) {
-		RawMaterialPost tempPost = new RawMaterialPost(name, grupp, weight, price, date);
-		Calendar now = CalendarUtil.getTodayCalendarWithClearedClock();
-		tempPost.setValue(now, price * weight);
+			String groupName) {
+		// TODO Test this one
+		RawMaterialPost newPost = new RawMaterialPost(name, groupName, weight, price, date);
+		newPost.setValue(CalendarUtil.getTodayCalendarWithClearedClock(), price * weight);
 
-		all.addPost(tempPost);
-		all.addHappening(date, price * weight);
-		
-		if (isGroup(grupp)) {
-			((Grupp) workspace.poster.elementAt(getPostIndex(grupp)))
-					.addPost(tempPost);
-			((Grupp) workspace.poster.elementAt(getPostIndex(grupp))).addHappening(date, price * weight);
-			workspace.poster.add(getPostIndex(grupp) + 1, tempPost);
+		Grupp group = getGroup(groupName);
+		if (group != null) {
+			group.addPost(newPost);
+			group.addHappening(null, date, price * weight, "");
 		} else {
-			workspace.poster.add(0,tempPost);
+			workspace.poster.add(0,newPost);
 		}
+		
+		all.addPost(newPost);
+		all.addHappening(null, date, price * weight, "");
 		uppdateraUtskriftsPanelen();
 	}
+	
+	public void createStockPost(String name, int count, double price, Calendar date,
+			URL url, String groupName) {
+		// TODO Test this one
+		AktiePost newStock = new AktiePost(name, groupName, count, price, date, url);
+		newStock.setValue(CalendarUtil.getTodayCalendarWithClearedClock(), price * count);
 
-	public int getPostIndex(String namn) {
-		for (int i = 0; i < workspace.poster.size(); i++) {
-			if (workspace.poster.elementAt(i).getName().equals(namn))
-				return i;
+		Grupp group = getGroup(groupName);
+		if (group != null) {
+			group.addPost(newStock);
+			group.addHappening(null, date, count * price, "");
+		} else {
+			workspace.poster.add(0,newStock);
 		}
-		return -1;
+		all.addPost(newStock);
+		all.addHappening(null, date, count * price, "");
+		uppdateraUtskriftsPanelen();
+	}
+	
+	public Grupp getGroup(String name) {
+		for (Post rootPost : workspace.poster) {
+			if (rootPost instanceof Grupp && rootPost.getName().equals(name))
+				return (Grupp)rootPost;
+		}
+		return null;
 	}
 
 	public double round(double value) {
@@ -1069,16 +1167,16 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	}
 
 	public void visaInsUtag(String postNamn) {
+		// TODO Test this one
 		rensaPanelen();
 		Calendar from = workspace.showFrom;
 		Calendar to = workspace.showTo;
 		backButton.setVisible(true);
-		int i = getPostIndex(postNamn);
-		VärdePost post = (VärdePost)workspace.poster.elementAt(i);
-		titleLabel.setText("Transaktioner, " + post.getName() + ", " + CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
-		
 
-		List<Happening> happengings = workspace.poster.elementAt(i).getHappenings(from, to);
+		ValuePost post = getValuePost(postNamn);
+		titleLabel.setText("Transaktioner, " + post.getName() + ", " + CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
+
+		List<Happening> happengings = post.getHappenings(from, to);
 		for (int j = 0; j < happengings.size(); j++) {
 			setText(CalendarUtil.getShortString(happengings.get(j).getDate()), "", j + 1, 0);
 			setText(happengings.get(j).getAmount(), "", j + 1, 1);
@@ -1096,58 +1194,51 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		Calendar from = workspace.showFrom;
 		Calendar to = workspace.showTo;
 		if (workspace.poster.size() == 0) {
-			log("\nDet finns inga grupper.");
+			log("\nDet finns inga poster.");
 			return;
 		}
-		for (int i = 0; i < workspace.poster.size(); i++) {
-			if (workspace.poster.elementAt(i) instanceof VärdePost) {
-				VärdePost postToPrint = (VärdePost)workspace.poster.elementAt(i);
-				log("\n\n"
-						+ "Förtydligande av Insättningar och utag för "
-						+ ((String) (((Post) workspace.poster.elementAt(i)).getName()))
-						+ "\n\n");
-				Vector<Happening> happeningsInRange = postToPrint.createHappeningsInRange(from, to);
-				for (int j = 0; j < happeningsInRange.size(); j++) {
-					log( CalendarUtil.getShortString(happeningsInRange.elementAt(j).getDate())
-							+ "\t");
-					log(""
-							+ happeningsInRange.elementAt(j).getAmount() + "\t");
-					if (happeningsInRange.elementAt(j).getKommentar() == "") {
-						log("Kommentar saknas\n");
-					} else {
-						log(happeningsInRange.elementAt(j).getKommentar() + "\n");
-					}
-				}// for
-			}// if
+		for (Post rootPost : workspace.poster) {
+			if (rootPost instanceof ValuePost) {
+				logHappenings((ValuePost)rootPost, from, to);
+			} else {
+				for (ValuePost childPost : ((Grupp)rootPost).getPoster()) {
+					logHappenings(childPost, from, to);
+				}
+			}
 		}// for
-
 	}// metod
+	
+	private void logHappenings(ValuePost postToPrint, Calendar from, Calendar to) {
+		log("\n" + "Förtydligande av insättningar och uttag för "
+				+ postToPrint.getName() + "\n");
+		Vector<Happening> happeningsInRange = postToPrint.createHappeningsInRange(from, to);
+		for (Happening happening : happeningsInRange) {
+			log(CalendarUtil.getShortString(happening.getDate()) + "\t");
+			log(happening.getAmount() + "\t");
+			if (happening.getKommentar() == "") {
+				log("Kommentar saknas\n");
+			} else {
+				log(happening.getKommentar() + "\n");
+			}
+		}// for
+		
+	} 
 
-	public boolean finsPost(String namn) {
-		for (int i = 0; i < workspace.poster.size(); i++) {
-			if (((String) (((Post) workspace.poster.elementAt(i)).getName()))
-					.equals(namn)) {
+	public boolean isPostName(String name) {
+		for (Post rootPost : workspace.poster) {
+			if (rootPost instanceof Grupp) {
+				Vector<ValuePost> childPosts = ((Grupp) rootPost).getPoster();
+				for (ValuePost childPost : childPosts) {
+					if (childPost.getName().equals(name)) {
+						return true;
+					}
+				}
+			}
+			if (rootPost.getName().equals(name)) {
 				return true;
 			}
 		}
 		return false;
-	}
-
-	public boolean kollaGruppNamn(String benamning) {
-		if (benamning.length() == 0) {
-			log("\n" + "Du måste ange ett gruppnamn");
-			return true;
-
-		}
-
-		for (int i = 0; i < workspace.poster.size(); i++) {
-			if (((String) (((Post) workspace.poster.elementAt(i)).getName()))
-					.equals(benamning)) {
-				return false;
-			}
-		}
-		log("\n" + "Gruppen " + benamning + " finns ej.");
-		return true;
 	}
 
 	WindowListener fonsterLyssnare = new WindowAdapter() {
@@ -1182,11 +1273,13 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 	}
 	
+
+	
 	private void openLastUsedWorkspace() {
 		try {
 			SavedData.load(this);
 			if(SavedData.gotLastUsedWorkspace()) {
-				this.showUpdateString("Loading workspace...");
+				log("Loading workspace...");
 				//workspace = (Workspace)FileUtil.readObjectFromFile(this, SavedData.getLastSavedWorkspace());
 				try {
 					workspace = new Workspace(FileUtil.readFromJsonFile(SavedData.getLastSavedWorkspace()));
@@ -1207,50 +1300,44 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			cce.printStackTrace();
 			return;
 		}
-		showUpdateString("Viewing period: " + CalendarUtil.getShortString(workspace.showFrom) + " - " + CalendarUtil.getShortString(workspace.showTo));
+		log("Viewing period: " + CalendarUtil.getShortString(workspace.showFrom) + " - " + CalendarUtil.getShortString(workspace.showTo));
 		updateTotal();
 		updateAllMilestones();
 		uppdateraUtskriftsPanelen();
 	}
-
-	public void addStock(String name, int count, double price, Calendar date,
-			URL url, String groupName) {
-		AktiePost stock = new AktiePost(name, groupName, count, price, date, url);
-		stock.setValue(CalendarUtil.getTodayCalendarWithClearedClock(), price);
-
-		all.addPost(stock);
-		all.addHappening(date, count * price);
-
-		if (isGroup(groupName)) {
-			((Grupp) workspace.poster.elementAt(getPostIndex(groupName)))
-			.addPost(stock);
-			((Grupp) workspace.poster.elementAt(getPostIndex(groupName))).addHappening(date, count
-					* price);
-			workspace.poster.add(getPostIndex(groupName) + 1, stock);
-		} else {
-			workspace.poster.add(0,stock);
-		}
-		uppdateraUtskriftsPanelen();
-	}
-
-	public boolean isPostPresent(String name) {
-		for (int i = 0; i < workspace.poster.size(); i++) {
-			if (((String) (((Post) workspace.poster.elementAt(i)).getName()))
-					.equals(name)) {
-				return true;
+	
+	private void printAllMilestones() {
+		log("Visar alla milstolpar: ");
+		Vector<Post> rootPosts = workspace.poster;
+		Post rootPost;
+		Vector<MileStone> milestones;
+		for(int i = 0; i < rootPosts.size(); i++) {
+			rootPost = rootPosts.elementAt(i);
+			if(isGroup(i)) {
+				log(rootPost.getName() + ":");
+				for (ValuePost childPost : ((Grupp)rootPost).getPoster()) {
+					log("   " + childPost.getName() + ":");
+					milestones = childPost.getMilestones();
+					for(int j = 0; j < milestones.size(); j++) {
+						log("   " + CalendarUtil.getShortString(milestones.get(j)) + " \t\t" + milestones.get(j).getValue());
+					}
+					log("");
+				}
+			} else {
+				log(rootPost.getName() + ":");
+				milestones = ((ValuePost)rootPost).getMilestones();
+				for(int j = 0; j < milestones.size(); j++) {
+					log(CalendarUtil.getShortString(milestones.get(j)) + " \t\t" + milestones.get(j).getValue());
+				}
+				log("");
 			}
 		}
-		return false;
-	}
-	
-	public void showUpdateString(String updateText) {
-		log(updateText + "\n");
 	}
 	
 	public void setFilterDates(Calendar from, Calendar to) {
 		workspace.showFrom = from;
 		workspace.showTo = to;
-		showUpdateString("Viewing period: " + CalendarUtil.getShortString(workspace.showFrom) + " -> " + CalendarUtil.getShortString(workspace.showTo));
+		log("Viewing period: " + CalendarUtil.getShortString(workspace.showFrom) + " -> " + CalendarUtil.getShortString(workspace.showTo));
 		updateTotal();
 		uppdateraUtskriftsPanelen();
 	}
@@ -1266,30 +1353,56 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	}
 
 	public void setMilestone(Calendar date) {
-		for(int i = 0; i < workspace.poster.size(); i++) {
-			if(isGroup(i)){
-				//do nothing
-			} else {
-				((VärdePost)workspace.poster.elementAt(i)).addMileStone(date);
-			}
-		}
+		// TODO Adapt to new post in group strategy
+//		for(int i = 0; i < workspace.poster.size(); i++) {
+//			if(isGroup(i)){
+//				//do nothing
+//			} else {
+//				((VärdePost)workspace.poster.elementAt(i)).addMileStone(date);
+//			}
+//		}
 		//updateAllMilestones();
 		//updateTotal();
 		//uppdateraUtskriftsPanelen();
+		
+		
+		
+		
+		
+		Vector<Post> rootPosts = workspace.poster;
+		Post rootPost;
+		for(int i = 0; i < rootPosts.size(); i++) {
+			rootPost = rootPosts.elementAt(i);
+			if(isGroup(i)) {
+				for (ValuePost childPost : ((Grupp)rootPost).getPoster()) {
+					childPost.addMileStone(date);
+				}
+			} else {
+				((ValuePost)rootPosts.elementAt(i)).addMileStone(date);
+			}
+		}
+		
+		
+		updateAllMilestones();
+		updateTotal();
+		uppdateraUtskriftsPanelen();
+		
 	}
 
 	
 	/* (non-Javadoc)
 	 * @see com.roberthelmbro.economy.DataUpdateListener#removeTransaction(java.lang.String, java.util.Calendar, double)
 	 */
-	public void removeTransaction(String post, Calendar date, double amount) {
-		((VärdePost)getPost(post)).deleteHappening(date, amount);
+	public void removeTransaction(String postName, Calendar date, double amount) {
+		// TODO Test this one
+		getValuePost(postName).deleteHappening(date, amount);
 		updateTotal();
 		uppdateraUtskriftsPanelen();
 	}
 	
 	public void removeMilestone(String post, Calendar date) {
-		((VärdePost)getPost(post)).deleteMilestone(date);
+		// TODO Test this one
+		getValuePost(post).deleteMilestone(date);
 		updateTotal();
 		uppdateraUtskriftsPanelen();
 	}
@@ -1297,14 +1410,14 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	private double interestToday = 0;
 	public void reportInterest (String name, double add) {
 		interestToday += add;
-		showUpdateString("Ränta inrapporterad");
-		showUpdateString("Post: " + name);
-		showUpdateString("Ränta: " + add);
-		showUpdateString("Totalt hittils: " + interestToday);  
+		log("Ränta inrapporterad");
+		log("Post: " + name);
+		log("Ränta: " + add);
+		log("Totalt hittils: " + interestToday);  
 	}
 	
-	private void log(String message) {
-		textArean.append(message);
+	public void log(String message) {
+		textArean.append(message + "\n");
 		JViewport vp = textAreaScrollPane.getViewport();
 		Rectangle visible = vp.getVisibleRect();
 		visible.y = 99999999/*Just a big value*/;

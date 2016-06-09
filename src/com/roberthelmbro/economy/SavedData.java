@@ -38,16 +38,16 @@ public class SavedData implements Serializable{
 		FileUtil.writeStringToFile(lastSavedWorkspace, SESSION_DATA_FILE_NAME);
 	}
 	
-	public static void load(PrintUpdate statusListener) throws ClassNotFoundException, IOException{
-		statusListener.showUpdateString("Loading session data");
+	public static void load(KalkylUI statusListener) throws ClassNotFoundException, IOException{
+		statusListener.log("Loading session data");
 		lastSavedWorkspace = FileUtil.readStringFromFile(statusListener, SESSION_DATA_FILE_NAME);
 		
 		if(lastSavedWorkspace == null){
-			statusListener.showUpdateString("No workspace found");
+			statusListener.log("No workspace found");
 		} else if (lastSavedWorkspace.length() == 0) {
-			statusListener.showUpdateString("No workspace found");
+			statusListener.log("No workspace found");
 		} else {
-			statusListener.showUpdateString("Last used workspace was " + lastSavedWorkspace);
+			statusListener.log("Last used workspace was " + lastSavedWorkspace);
 		}
 	}
 

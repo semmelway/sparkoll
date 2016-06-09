@@ -24,6 +24,8 @@ public abstract class Post implements Serializable {
 		return name;
 	}
 	
+	public abstract void uppdateraVarde(KalkylUI kalkylUI, Calendar from, Calendar to);
+	
 	public abstract boolean isActive(Calendar from, Calendar to);
 	
 	public abstract List<Happening> getHappenings(Calendar from, Calendar to);

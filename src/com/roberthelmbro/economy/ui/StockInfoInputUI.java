@@ -8,13 +8,14 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import com.roberthelmbro.economy.AktiePost;
-import com.roberthelmbro.economy.StockInfoInputUiListener;
+import com.roberthelmbro.economy.KalkylUI;
 import com.roberthelmbro.util.CalendarUtil;
 import com.roberthelmbro.util.ParseCheckerTools;
 import com.roberthelmbro.util.ParseUtil;
@@ -29,7 +30,7 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 		UPPDATE_STOCK
 	}
 	
-	StockInfoInputUiListener resultListener; 
+	KalkylUI resultListener; 
 	AktiePost stock;
 	
 	// Labels
@@ -68,7 +69,7 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public StockInfoInputUI(StockInfoInputUiListener listener, String groupName) throws IOException ,ClassNotFoundException
+	public StockInfoInputUI(KalkylUI listener, String groupName) throws IOException ,ClassNotFoundException
 	{
 		resultListener=listener;	
 		this.type = Type.NEW_STOCK;
@@ -76,7 +77,7 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 
 	}
 	
-	public StockInfoInputUI(StockInfoInputUiListener listener, AktiePost stock) {
+	public StockInfoInputUI(KalkylUI listener, AktiePost stock) {
 		resultListener = listener;
 		type = Type.UPPDATE_STOCK;
 		this.stock = stock;
@@ -176,7 +177,7 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 			
 			switch(type) {
 			case NEW_STOCK:
-				resultListener.addStock(namnT.getText(), ParseUtil.parseInt(antalT.getText()),
+				resultListener.createStockPost(namnT.getText(), ParseUtil.parseInt(antalT.getText()),
 						ParseUtil.parseDouble(priceT.getText()),
 						CalendarUtil.parseString(datumT.getText()), url, gruppT.getText());
 				break;
@@ -193,7 +194,7 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 	private boolean inputFieldsFailed(){
 		if(((String)namnT.getText()).length()==0) {	meddelandeL.setText("Du måste ange ett namn");
 			return true;
-		} else if(type == Type.NEW_STOCK && resultListener.isPostPresent(namnT.getText())){
+		} else if(type == Type.NEW_STOCK && resultListener.isPostName(namnT.getText())){
 			meddelandeL.setText("Namnet måste vara unikt");
 			return true;
 		} else if(((String)priceT.getText()).length()==0) {	

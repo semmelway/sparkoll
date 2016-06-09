@@ -18,7 +18,7 @@ import javax.swing.JTextField;
 
 import com.roberthelmbro.economy.AktiePost;
 import com.roberthelmbro.economy.KalkylUI;
-import com.roberthelmbro.economy.VärdePost;
+import com.roberthelmbro.economy.ValuePost;
 import com.roberthelmbro.util.CalendarUtil;
 import com.roberthelmbro.util.ParseUtil;
 
@@ -27,7 +27,7 @@ import com.roberthelmbro.util.ParseUtil;
 public class UppdateraVardeUI extends JFrame implements ActionListener {
 	static final long serialVersionUID = 0;
 	
-	VärdePost vardePost;
+	ValuePost vardePost;
 	KalkylUI kalkylUI;
 	
 	double earned = 0;
@@ -62,7 +62,7 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 	int ltY = 30;
 	
 
-	public UppdateraVardeUI(VärdePost vardePost, KalkylUI kalkylUI) throws IOException ,ClassNotFoundException
+	public UppdateraVardeUI(ValuePost vardePost, KalkylUI kalkylUI) throws IOException ,ClassNotFoundException
 	{
 		this.vardePost = vardePost;
 		this.kalkylUI = kalkylUI;

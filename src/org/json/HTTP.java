@@ -125,6 +125,7 @@ public class HTTP {
      *  information.
      */
     public static String toString(JSONObject jo) throws JSONException {
+    	@SuppressWarnings("rawtypes")
         Iterator     keys = jo.keys();
         String       string;
         StringBuffer sb = new StringBuffer();

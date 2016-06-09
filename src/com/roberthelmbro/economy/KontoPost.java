@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import com.roberthelmbro.economy.ui.UppdateraVardeUI;
 import com.roberthelmbro.util.CalendarUtil;
 
-public class KontoPost extends VärdePost implements AddMilestoneUiListener
+public class KontoPost extends ValuePost implements AddMilestoneUiListener
 {
 	static final long serialVersionUID = 0;
 
@@ -75,8 +75,8 @@ public class KontoPost extends VärdePost implements AddMilestoneUiListener
 		return json;
 	}
 	
-	//funktioner
-	public void uppdateraVarde(KalkylUI kalkylUI) {
+	@Override
+	public void uppdateraVarde(KalkylUI kalkylUI, Calendar from, Calendar to) {
 		try {
 		new UppdateraVardeUI(this, kalkylUI);
 		}catch(IOException e){}

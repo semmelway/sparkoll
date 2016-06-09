@@ -313,7 +313,8 @@ public class JSONML {
         int             i;
         JSONObject   jo;
         String       key;
-        Iterator     keys;
+        @SuppressWarnings("rawtypes")
+		Iterator     keys;
         int             length;
         Object         object;
         StringBuffer sb = new StringBuffer();
@@ -391,7 +392,8 @@ public class JSONML {
      * @return An XML string.
      * @throws JSONException
      */
-    public static String toString(JSONObject jo) throws JSONException {
+    @SuppressWarnings("rawtypes")
+	public static String toString(JSONObject jo) throws JSONException {
         StringBuffer sb = new StringBuffer();
         int          i;
         JSONArray    ja;

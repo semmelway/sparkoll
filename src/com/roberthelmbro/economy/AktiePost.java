@@ -21,7 +21,7 @@ import com.roberthelmbro.economy.ui.UppdateraVardeUI;
 import com.roberthelmbro.util.CalendarUtil;
 
 
-public class AktiePost extends VärdePost {
+public class AktiePost extends ValuePost {
 	static final long serialVersionUID = 1;
 	
 	double kurs;
@@ -87,7 +87,8 @@ public class AktiePost extends VärdePost {
 		return json;
 	}
 
-	public void uppdateraVarde(KalkylUI kalkylUI) {
+	@Override
+	public void uppdateraVarde(KalkylUI kalkylUI, Calendar from, Calendar to) {
 		try {
 			System.out.println("Doing update for " + name);
 			String rawData = readSource();
@@ -117,13 +118,19 @@ public class AktiePost extends VärdePost {
 		double price = Double.parseDouble(priceString);
 		
 		
-		if(name.equals("Fortum")) {
-			//try {
-			price = price * 8.89;//CurrencyUtil.transform(CurrencyUtil.EUR, CurrencyUtil.SEK, price);
-		//	} catch(IOException ioe) {ioe.printStackTrace();return;}
-		//	catch(JSONException j) {j.printStackTrace();return;}
+		if (name.equals("Fortum")) {
+			if (CurrencyUtil.getMultiplicator("EUR/SEK") != -1) {
+				price = price * CurrencyUtil.getMultiplicator("EUR/SEK");
+			} else {
+				return;
+			}
+		} else if (name.equals("Disney")) {
+			if (CurrencyUtil.getMultiplicator("USD/SEK") != -1) {
+				price = price * CurrencyUtil.getMultiplicator("USD/SEK");
+			} else {
+				return;
+			}
 		}
-		
 		
 		value = antal * price;
 		

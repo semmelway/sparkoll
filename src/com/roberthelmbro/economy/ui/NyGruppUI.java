@@ -88,7 +88,7 @@ public class NyGruppUI extends JFrame implements ActionListener {
 			{	meddelandeL.setText("Du måste ange en benämning");
 				return ;
 			}
-			if(kalkyl.finsPost(benamningT.getText())){
+			if(kalkyl.isPostName(benamningT.getText())){
 				meddelandeL.setText("Gruppnamnet måste vara unikt");
 				return;
 			}
@@ -103,7 +103,7 @@ public class NyGruppUI extends JFrame implements ActionListener {
 		{	meddelandeL.setText("Du måste ange en benämning");
 			return ;
 		}
-		if(kalkyl.finsPost(benamningT.getText())){
+		if(kalkyl.isPostName(benamningT.getText())){
 			meddelandeL.setText("Gruppnamnet måste vara unikt");
 			return;
 		}

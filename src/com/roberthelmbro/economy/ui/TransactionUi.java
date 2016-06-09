@@ -133,12 +133,12 @@ public class TransactionUi extends JFrame implements ActionListener{
 				meddelandeL.setText(ParseCheckerTools.checkDouble(beloppT.getText()));
 				return;
 			}
-			if(kalkyl.kollaGruppNamn(fromT.getText())){
+			if(!kalkyl.isPostName(fromT.getText())){
 				meddelandeL.setText("Du måste ange korrekt gruppnamn.");
 				return;
 			}
 
-			if(kalkyl.kollaGruppNamn(toT.getText())){
+			if(!kalkyl.isPostName(toT.getText())){
 				meddelandeL.setText("Du måste ange korrekt gruppnamn.");
 				return;
 			}

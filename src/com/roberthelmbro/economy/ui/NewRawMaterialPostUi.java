@@ -122,7 +122,7 @@ public class NewRawMaterialPostUi extends JFrame implements ActionListener {
 				return ;
 			}
 			
-			if(kalkyl.finsPost(namnT.getText())){
+			if(kalkyl.isPostName(namnT.getText())){
 				meddelandeL.setText("Namnet måste vara unikt");
 				return;
 			}

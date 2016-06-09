@@ -166,7 +166,7 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 				meddelandeL.setText(ParseCheckerTools.checkDouble(beloppT.getText()));
 				return;
 			}
-			if(kalkyl.kollaGruppNamn(benomningT.getText())){
+			if(!kalkyl.isPostName(benomningT.getText())){
 				meddelandeL.setText("Du måste ange korrekt gruppnamn.");
 				return;
 			}
@@ -186,7 +186,7 @@ public class InsattningUtagUI extends JFrame implements ActionListener{
 				meddelandeL.setText(ParseCheckerTools.checkDouble(beloppT.getText()));
 				return;
 			}
-			if(kalkyl.kollaGruppNamn(benomningT.getText())){
+			if(!kalkyl.isPostName(benomningT.getText())){
 				meddelandeL.setText("Du måste ange korrekt gruppnamn.");
 				return;
 			}		

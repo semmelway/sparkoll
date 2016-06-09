@@ -6,6 +6,7 @@ package com.roberthelmbro.economy;
 
 import java.net.MalformedURLException;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -18,13 +19,13 @@ import com.roberthelmbro.util.CalendarUtil;
 public class Grupp extends Post {
 	static final long serialVersionUID = 0;
 
-	private Vector<VärdePost> poster = new Vector<VärdePost>();
-	private VärdePost total;
+	private Vector<ValuePost> poster = new Vector<ValuePost>();
+	private ValuePost total;
 
 	// konstruktor
 	public Grupp(String name) {
 		super(name);
-		total = new VärdePost("total", "");
+		total = new ValuePost("total", "");
 	}
 
 	public Grupp(JSONObject json) throws JSONException, MalformedURLException {
@@ -60,17 +61,27 @@ public class Grupp extends Post {
 	}
 
 	// funktioner
-	public void addPost(VärdePost post) {
+	public void addPost(ValuePost post) {
 		poster.addElement(post);
 	}
 
-	public Vector<VärdePost> getPoster() {
+	public Vector<ValuePost> getPoster() {
 		return poster;
+	}
+	
+	public List<ValuePost> getPosts(Calendar from, Calendar to) {
+		List<ValuePost> posts = new LinkedList<ValuePost>();
+		for (ValuePost post : poster) {
+			if (post.isActive(from, to)) {
+				posts.add(post);
+			}
+		}
+		return posts;
 	}
 	
 	public boolean contains(String label) {
 		for(int i = 0; i < poster.size(); i++){
-			if(poster.get(i).name == label){
+			if(poster.get(i).name.equals(label)) {
 				return true;
 			}
 		}
@@ -133,7 +144,7 @@ public class Grupp extends Post {
 
 	public void updateTotal(Calendar from, Calendar to) {
 		if(total == null) {
-			total = new VärdePost("total","");
+			total = new ValuePost("total","");
 		} else {
 			total.deleteAllHappenings();
 			total.mMilestones = new Vector<MileStone>();
@@ -142,7 +153,7 @@ public class Grupp extends Post {
 		double fromMileStoneValue = 0;
 		double toMileStoneValue = 0;
 		Calendar tempDate = null;
-		VärdePost post;
+		ValuePost post;
 
 		for (int i = 0; i < poster.size(); i++) {
 			post = poster.elementAt(i);
@@ -174,8 +185,8 @@ public class Grupp extends Post {
 		double totalValue = 0;
 		Calendar tempDate = null;
 		for (int i = 0; i < poster.size(); i++) {
-			totalValue += ((VärdePost) poster.elementAt(i)).getLatestValue();
-			tempDate = ((VärdePost) poster.elementAt(i)).getLastUppdateDate();
+			totalValue += ((ValuePost) poster.elementAt(i)).getLatestValue();
+			tempDate = ((ValuePost) poster.elementAt(i)).getLastUppdateDate();
 		}
 		total.setValue(tempDate, totalValue);
 	}
@@ -187,7 +198,14 @@ public class Grupp extends Post {
 		
 	}
 
-	public void addHappening(Calendar date, double amount) {
+	public void addHappening(String name, Calendar date, double amount, String comment) {
+		if (name != null) {
+			for (ValuePost post : poster) {
+				if (post.getName().equals(name)) {
+					post.addHappening(date, amount, comment);
+				}
+			}
+		}
 		total.addHappening(date, amount, "");
 	}
 	
@@ -201,11 +219,19 @@ public class Grupp extends Post {
 			return true;
 		}
 		// Check value
-		if (getValue(to) > 1) {
+		if (getValue(to) > 1 || getValue(from) > 1) {
 			return true;
 		}
 		// Then its not active
 		return false;
+	}
+
+	@Override
+	public void uppdateraVarde(KalkylUI kalkylUI, Calendar from, Calendar to) {
+		for (ValuePost childPost : poster) {
+			if (childPost.isActive(from, to))
+			childPost.uppdateraVarde(kalkylUI, from, to);
+		}
 	}
 
 }// class
