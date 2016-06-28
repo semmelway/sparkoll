@@ -17,7 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.roberthelmbro.economy.ui.UppdateraVardeUI;
+import com.roberthelmbro.economy.ui.UpdateValueUi;
 import com.roberthelmbro.util.CalendarUtil;
 
 
@@ -103,7 +103,7 @@ public class AktiePost extends ValuePost {
 			
 			setValue(date, wantedString);
 		}catch(NoSuchElementException e ){
-			try{new UppdateraVardeUI(this, kalkylUI);}
+			try{new UpdateValueUi(this, kalkylUI);}
 			catch(ClassNotFoundException d){}
 			catch(IOException c){}
 		}

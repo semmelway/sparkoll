@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.roberthelmbro.economy.ui.UppdateraVardeUI;
+import com.roberthelmbro.economy.ui.UpdateValueUi;
 import com.roberthelmbro.util.CalendarUtil;
 
 public class KontoPost extends ValuePost implements AddMilestoneUiListener
@@ -78,7 +78,7 @@ public class KontoPost extends ValuePost implements AddMilestoneUiListener
 	@Override
 	public void uppdateraVarde(KalkylUI kalkylUI, Calendar from, Calendar to) {
 		try {
-		new UppdateraVardeUI(this, kalkylUI);
+		new UpdateValueUi(this, kalkylUI);
 		}catch(IOException e){}
 		catch(ClassNotFoundException ee){}
 		}

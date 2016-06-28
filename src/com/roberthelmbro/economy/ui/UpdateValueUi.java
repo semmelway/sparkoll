@@ -1,6 +1,6 @@
 package com.roberthelmbro.economy.ui;
 /**
- * @author Robert Helmbro 
+ * @author Robert Helmbro
  */
 import java.awt.Container;
 import java.awt.event.ActionEvent;
@@ -24,45 +24,45 @@ import com.roberthelmbro.util.ParseUtil;
 
 
 
-public class UppdateraVardeUI extends JFrame implements ActionListener {
+public class UpdateValueUi extends JFrame implements ActionListener {
 	static final long serialVersionUID = 0;
-	
+
 	ValuePost vardePost;
 	KalkylUI kalkylUI;
-	
+
 	double earned = 0;
 	double amount = 0;
-	
-	
+
+
 	// Labels
-	private JLabel namnL = new JLabel("Ange nytt värde för ");	
+	private JLabel namnL = new JLabel("Ange nytt värde för ");
 	private JLabel datumL= new JLabel("Datum(åååå-mm-dd)");
 	private JLabel interestL = new JLabel("Ränta");
 	private JLabel beloppL = new JLabel("Värde");
-	private JLabel meddelandeL = new JLabel("Meddelande");
-	
+	private JLabel newValueL = new JLabel("Värdeförändring");
+	private JLabel meddelandeL = new JLabel("");
+
 	private JLabel earnedL = new JLabel("***********");
-	
+
 	// Buttons
 	private JButton avbrytB = new JButton("Avbryt");
 	private JButton sparaB = new JButton("Spara");
-	private JButton updateAndSaveB = new JButton("Plussa och spara");
-		
-	// Text Fields
-	private JTextField datumT=new JTextField();
-	private JTextField beloppT=new JTextField();
-	private JTextField interestT = new JTextField();
-	
-	int fonsterBredd = 800;
-	
-	int ltBredd = 170;
-	int ltHojd = 20;
-	int ltDist =10;
-	
-	int ltY = 30;
-	
 
-	public UppdateraVardeUI(ValuePost vardePost, KalkylUI kalkylUI) throws IOException ,ClassNotFoundException
+	// Text Fields
+	private JTextField datumT = new JTextField();
+	private JTextField beloppT = new JTextField();
+	private JTextField changeT = new JTextField();
+	private JTextField interestT = new JTextField();
+
+	int leftColumnWidth = 200;
+	int heightDist = 10;
+	int widthDist = 20;
+
+	int fieldWidth = 170;
+	int fieldHeight = 20;
+
+
+	public UpdateValueUi(ValuePost vardePost, KalkylUI kalkylUI) throws IOException ,ClassNotFoundException
 	{
 		this.vardePost = vardePost;
 		this.kalkylUI = kalkylUI;
@@ -70,71 +70,86 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 		Container c= getContentPane();
 		c.setLayout(null);
 		setSize(800,300);
-	
+
 		//**************** Labels ********
-		
-		
+
+		int x = leftColumnWidth;
+		int y = heightDist;
 		c.add(namnL);
 		namnL.setText("Ange nytt värde för " + vardePost.getName());
-		namnL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+0*(ltHojd+ltDist),ltBredd * 2,ltHojd);
+		namnL.setBounds(x, y, fieldWidth * 3, fieldHeight);
 
+		y+= fieldHeight + heightDist;
 		c.add(datumL);
-		datumL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+1*(ltHojd+ltDist),ltBredd,ltHojd);
+		datumL.setBounds(x, y, fieldWidth, fieldHeight);
 
+		y+= fieldHeight + heightDist;
 		c.add(beloppL);
-		beloppL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+2*(ltHojd+ltDist),ltBredd,ltHojd);
-		if(vardePost instanceof AktiePost){beloppL.setText("Kurs");} 
-		
+		beloppL.setBounds(x, y, fieldWidth, fieldHeight);
+		if(vardePost instanceof AktiePost){beloppL.setText("Kurs");}
+
+		y+= fieldHeight + heightDist;
+        c.add(newValueL);
+        newValueL.setBounds(x, y, fieldWidth, fieldHeight);
+        if(vardePost instanceof AktiePost){beloppL.setText("Kursförändring");}
+
+		y+= fieldHeight + heightDist;
 		c.add(interestL);
-		interestL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+3*(ltHojd+ltDist),ltBredd,ltHojd);
-		
+		interestL.setBounds(x, y, fieldWidth, fieldHeight);
+
+		y+= fieldHeight + heightDist;
 		c.add(earnedL);
-		earnedL.setBounds(fonsterBredd/2+ltDist,ltY+4*(ltHojd+ltDist),ltBredd,ltHojd);
-		
+		earnedL.setBounds(x, y, fieldWidth, fieldHeight);
+
+		y+= fieldHeight + heightDist;
 		c.add(meddelandeL);
-		meddelandeL.setBounds(fonsterBredd/2-ltDist-ltBredd,ltY+5*(ltHojd+ltDist),ltBredd*2+ltDist,ltHojd);
-		// **************** Buttons ****************
-		c.add(sparaB);
-		sparaB.setBounds(fonsterBredd/2-ltBredd/2,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
-		sparaB.addActionListener(this);
-		
-		c.add(avbrytB);
-		avbrytB.setBounds(fonsterBredd/2-3*ltBredd/2-ltDist,ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
-		avbrytB.addActionListener(this);
-		
-		c.add(updateAndSaveB);
-		updateAndSaveB.setBounds(fonsterBredd/2 + ltBredd/2 + ltDist, ltY+6*(ltHojd+ltDist),ltBredd,ltHojd);
-		updateAndSaveB.addActionListener(this);
-		
-		
-		//**************** Text Fields ****************
+		meddelandeL.setBounds(x, y, fieldWidth * 3, fieldHeight);
 
-		c.add(datumT);
-		datumT.setBounds(fonsterBredd/2+ltDist,ltY+1*(ltHojd+ltDist),ltBredd,ltHojd);
-		datumT.setText((new Date(System.currentTimeMillis())).toString());
-		
-		
-		
-		c.add(beloppT);
-		beloppT.setBounds(fonsterBredd/2+ltDist,ltY+2*(ltHojd+ltDist),ltBredd,ltHojd);
-		beloppT.setText("" + vardePost.getLatestValue());
+        // **************** Action bar ****************
+        x = leftColumnWidth;
 
-		
-		c.add(interestT);
-		interestT.setBounds(fonsterBredd/2+ltDist,ltY+3*(ltHojd+ltDist), ltBredd,ltHojd);
-		interestT.addActionListener(this);
-			
+        c.add(avbrytB);
+        avbrytB.setBounds(x, y, fieldWidth, fieldHeight);
+        avbrytB.addActionListener(this);
+
+        x+= fieldWidth + widthDist;
+        c.add(sparaB);
+        sparaB.setBounds(x, y, fieldWidth, fieldHeight);
+        sparaB.addActionListener(this);
+
+        //**************** Text Fields ****************
+        y = heightDist * 2 + fieldHeight;
+        c.add(datumT);
+        datumT.setBounds(x, y, fieldWidth, fieldHeight);
+        datumT.setText((new Date(System.currentTimeMillis())).toString());
+
+        y+= fieldHeight + heightDist;
+        c.add(beloppT);
+        beloppT.setBounds(x, y, fieldWidth, fieldHeight);
+        beloppT.setText("" + vardePost.getLatestValue());
+
+        y+= fieldHeight + heightDist;
+        c.add(changeT);
+        changeT.setBounds(x, y, fieldWidth, fieldHeight);
+        changeT.setText("");
+        changeT.addActionListener(this);
+
+        y+= fieldHeight + heightDist;
+        c.add(interestT);
+        interestT.setBounds(x, y, fieldWidth, fieldHeight);
+        interestT.addActionListener(this);
+
 		setVisible(true);
 	}//konstruktor
-	
+
 	public void actionPerformed(ActionEvent e)
 	{
 		if(e.getSource()==avbrytB){
 			this.setVisible(false);
 		}
 		if (e.getSource()==sparaB){
-			
-			
+
+
 			if(kollaDatum(datumT.getText()))
 				return;
 			double newValue = 0;
@@ -144,13 +159,33 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 				meddelandeL.setText("Ange korrekt värde.");
 			}
 			kalkylUI.reportInterest(vardePost.getName(), newValue - vardePost.getLatestValue());
-			vardePost.setValue(CalendarUtil.parseString(datumT.getText()), 
+			vardePost.setValue(CalendarUtil.parseString(datumT.getText()),
 					newValue);
 
 			kalkylUI.updateTotal();
 			kalkylUI.uppdateraUtskriftsPanelen();
 			this.setVisible(false);
-		} else if (e.getSource() == interestT) {
+		} else if (e.getSource() == changeT) {
+            String valueChange = changeT.getText();
+            if (valueChange.length() == 0) {
+             return;
+            }
+            boolean add = valueChange.startsWith("+");
+            boolean substract = valueChange.startsWith("-");
+            if (!(add || substract)) {
+                meddelandeL.setText("Värdeförändring måste inledas med + eller -");
+                return;
+            }
+
+            if(!kollaVarde(valueChange.substring(1))) {
+                double value = Double.parseDouble(valueChange.substring(1));
+                if (add) {
+                    beloppT.setText("" + (Double.parseDouble(beloppT.getText()) + value));
+                } else if(substract) {
+                    beloppT.setText("" + (Double.parseDouble(beloppT.getText()) - value));
+                }
+            }
+        } else if (e.getSource() == interestT) {
 			String interestString = interestT.getText();
 			if (!kollaVarde(interestString)) {
 				double interest = Double.parseDouble(interestString);
@@ -160,46 +195,17 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 				double earned = calculateEarned(amount, numberOfDays, interest * 0.7D);
 				this.earned = earned;
 				this.amount = amount;
-				earnedL.setText("+ " + round(earned) + " kr efter skatt.");
-				
+				changeT.setText("+" + round(earned));
+
 			}
-		} else if (e.getSource() == updateAndSaveB) {
-			String interestString = interestT.getText();
-			if (!kollaVarde(interestString)) {
-				double interest = Double.parseDouble(interestString);
-				double amount = vardePost.getLatestValue();
-				long numberOfDays = getNumberOfDays(vardePost.getLastUppdateDate(),
-						CalendarUtil.getTodayCalendarWithClearedClock());
-				double earned = calculateEarned(amount, numberOfDays, interest * 0.7D);
-				this.earned = earned;
-				this.amount = amount;
-				earnedL.setText("+ " + round(earned) + " kr efter skatt.");
-				
-			}
-			if(this.earned == 0D) {
-				meddelandeL.setText("Finns inget att plussa.");
-				return;
-			}
-			
-			vardePost.setValue(CalendarUtil.parseString(datumT.getText()), 
-					amount + earned);
-			kalkylUI.reportInterest(vardePost.getName(), earned);
-			kalkylUI.updateTotal();
-			kalkylUI.uppdateraUtskriftsPanelen();
-			this.setVisible(false);
 		}
-	
+
 	}//actionperformed
-	
-	
-	
+
+
+
 	private double calculateEarned(double amount, long numberOfDays, double interest) {
-		System.out.println("calculateEarden##");
-		System.out.println("amount = " + amount);
-		System.out.println("numberOfDays = " + numberOfDays);
-		System.out.println("interest = " + interest);
-		
-		
+
 		if(numberOfDays < 1) {
 			System.out.println("returns zero");
 			return 0;
@@ -208,13 +214,13 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 		System.out.println("fixed interest = " + interest);
 		double dayInterest = Math.pow(interest, (1D/365D));
 		System.out.println("dayInterest" + dayInterest);
-		
+
 		System.out.println("new amount = " + amount * Math.pow(dayInterest,numberOfDays));
 		double earned = amount * Math.pow(dayInterest,numberOfDays) - amount;
 		System.out.println("earned = " + earned);
 		return earned;
 	}
-	
+
 	public double round(double value) {
 		double tio = 10;
 		return Math.round(value * 10) / tio;
@@ -222,7 +228,7 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 
 	public boolean kollaVarde(String varde) {
 		try{Double.parseDouble(varde);}
-		catch(NumberFormatException e)	
+		catch(NumberFormatException e)
 		{
 			meddelandeL.setText("\n"+"Du måste ange korekt värde. Värdet måste skrivas med siffror." );
 			return true;
@@ -245,42 +251,55 @@ public class UppdateraVardeUI extends JFrame implements ActionListener {
 		}
 		try{
 			StringTokenizer date= new StringTokenizer(datum,"-");
-			
+
 			Integer.parseInt(date.nextToken());
-			month=(int)Integer.parseInt(date.nextToken());
-			day=  (int)Integer.parseInt(date.nextToken());
-		}	
+			month=Integer.parseInt(date.nextToken());
+			day=  Integer.parseInt(date.nextToken());
+		}
 		catch(NoSuchElementException e)
 		{
 			meddelandeL.setText("\n"+"Du måste ange korekt datum." );
 			return true;
 		}
-		
+
 		if( !( 1<= month  && month<= 12 && 1 <=day && day<=31) )
-		{	
+		{
 			meddelandeL.setText("\n"+"Du måste ange korekt datum." );
 			return true;
 		}
-		
+
 		try{
 			CalendarUtil.parseString(datum);
 		}catch(IllegalArgumentException ia){
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	public long getNumberOfDays(Calendar dateOne,Calendar dateTwo) {
 
 		long timeOne = dateOne.getTimeInMillis();
 		long timeTwo = dateTwo.getTimeInMillis();
-		
+
 		long diffMillis = timeTwo - timeOne;
 		long diffSeconds = diffMillis/1000;
 		long diffHours = diffSeconds/3600;
 		long diffDays = diffHours/24;
-		
+
 		return diffDays;
-	}//metod
-}//class
+	}
+
+    /*public static void main(String[] args) {
+	    try {
+	        ValuePost valuePost = new ValuePost("Hola", "Dola");
+	                valuePost.setValue(CalendarUtil.getThisYearStart(), 333);
+
+            new UpdateValueUi(valuePost, null);
+        } catch (ClassNotFoundException | IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	}*/
+
+} // Class

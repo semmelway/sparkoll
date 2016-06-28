@@ -11,7 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.roberthelmbro.economy.ui.UppdateraVardeUI;
+import com.roberthelmbro.economy.ui.UpdateValueUi;
 import com.roberthelmbro.util.CalendarUtil;
 import com.roberthelmbro.util.GoldPriceFetcher;
 import com.roberthelmbro.util.ParseUtil;
@@ -98,7 +98,7 @@ public class RawMaterialPost extends ValuePost
 	}
 	
 	public void manualUpdate(KalkylUI kalkylUi) {
-		try{new UppdateraVardeUI(this, kalkylUi);}
+		try{new UpdateValueUi(this, kalkylUi);}
 		catch(ClassNotFoundException d){}
 		catch(IOException c){}
 	}
