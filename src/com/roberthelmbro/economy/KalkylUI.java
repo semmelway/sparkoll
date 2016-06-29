@@ -1,7 +1,7 @@
 package com.roberthelmbro.economy;
 
 /**
- * @author Robert Helmbro 
+ * @author Robert Helmbro
  */
 
 import java.awt.Color;
@@ -59,7 +59,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	private Workspace workspace = new Workspace();
 	private Grupp all = new Grupp("all");
 	private Vector<MileStone> allMilestoneDates = new Vector<MileStone>();
-	
+
 	// Menubar
 	private JMenuBar menuBar = new JMenuBar();
 
@@ -82,7 +82,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	private JMenuItem logOverview = new JMenuItem("Skriv ut översyn");
 	private JMenuItem skrivUtInsUtag = new JMenuItem("Skriv ut ins./utag");
 	private JMenuItem printMilestones = new JMenuItem("Skriv ut milstolpar");
-	
+
 	private JMenu viewM = new JMenu("Visa");
 	private JMenuItem allMenuItem = new JMenuItem("Full");
 	private JMenuItem thisYearMenuItem = new JMenuItem("I år");
@@ -117,18 +117,18 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	// textarea
 	JTextArea textArean = new JTextArea();
 	JScrollPane textAreaScrollPane = new JScrollPane(textArean);
-	
+
 	// command
 	JTextField commandT = new JTextField();
-	
+
 	//Buttons
 	private JButton backButton;
-	
+
 	// Colors
 	Color redText = new Color(199,19,32);
 	Color greenText = new Color(27,86,9);
 	Color blackText = new Color(0,0,0);
-	
+
 	Font font = new Font("arial", 0, 12);
 
 	public KalkylUI() throws IOException, ClassNotFoundException {
@@ -175,8 +175,8 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		logOverview.addActionListener(this);
 		skrivUtInsUtag.addActionListener(this);
 		printMilestones.addActionListener(this);
-		
-		
+
+
 		menuBar.add(viewM);
 		viewM.add(allMenuItem);
 		viewM.add(thisYearMenuItem);
@@ -195,7 +195,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		popupMenyn.add(visaInsUt);
 		popupMenyn.add(removeTransaction);
 		popupMenyn.add(removeMilestone);
-		
+
 		transactionFrom.addActionListener(this);
 		transactionTo.addActionListener(this);
 		edit.addActionListener(this);
@@ -229,7 +229,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 
 		c.add(matrixScrollPane);
 		matrixScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		
+
 		backButton = new JButton("Tillbaka");
 		backButton.setBounds(900, 5, 100, 20);
 		backButton.addActionListener(this);
@@ -245,7 +245,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		textAreaScrollPane
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		textAreaScrollPane.setBounds(12, 756, 1000, 225);
-		
+
 		c.add(commandT);
 		commandT.setBounds(12, 981, 1000, 20);
 		commandT.addActionListener(this);
@@ -266,9 +266,9 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				edit.setText("Redigera " + klickadPost);
 				radera.setText("Radera " + klickadPost);
 				raderaT.setText("Transformera " + klickadPost);
-				
+
 				Post post = getValuePost(klickadPost);
-	
+
 				transactionFrom.setVisible(true);
 				transactionTo.setVisible(true);
 				edit.setVisible(true);
@@ -276,8 +276,8 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				visaInsUt.setVisible(true);
 				removeTransaction.setVisible(true);
 				removeMilestone.setVisible(true);
-				
-				
+
+
 				if (klickadPost == null) {
 					// This is a group
 					transactionFrom.setVisible(false);
@@ -288,7 +288,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 					removeTransaction.setVisible(false);
 					removeMilestone.setVisible(false);
 				} else if(post instanceof AktiePost) {
-		
+
 				} else {
 					edit.setVisible(false);
 				}
@@ -313,8 +313,8 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			//			workspace = (Workspace)objectAndString.object;
 			//			SavedData.setLastSavedWorkspace(objectAndString.string);
 			JsonAndPath jsonAndPath = FileUtil.readJsonFromUserSpecifiedFile(getContentPane());
-			
-			
+
+
 			try {
 				workspace = new Workspace(jsonAndPath.json);
 			} catch (JSONException e1) {
@@ -341,7 +341,6 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 
 		if (e.getSource() == updateMenuItem) {
 			for (Post rootPost : workspace.poster) {
-				String postName = rootPost.name;
 				if (rootPost.isActive(workspace.showFrom, workspace.showTo)) {
 					rootPost.uppdateraVarde(this, workspace.showFrom, workspace.showTo);
 				}
@@ -404,9 +403,9 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				log("Fatal error");
 			}
 		}
-		
 
-		
+
+
 		// Logg utskrifter
 		if (e.getSource() == logOverview) {
 			printTextSumary();
@@ -443,7 +442,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				log("Fatal error");
 			}
 		}
-		
+
 		if (e.getSource() == edit) {
 			new StockInfoInputUI(this, (AktiePost)getValuePost(klickadPost));
 		}
@@ -464,11 +463,11 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			updateAllMilestones();
 			uppdateraUtskriftsPanelen();
 		} else if (e.getSource() == raderaT) {
-			
+
 			Post post;
 			for (int i = 0; i < workspace.poster.size(); i++) {
 				post = workspace.poster.get(i);
-				if (((String) (((Post) post).getName()))
+				if ((post.getName())
 						.equals(klickadPost)) {
 
 					workspace.poster.removeElementAt(i);
@@ -503,12 +502,12 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			handleCommand(commandT.getText());
 		}
 	}// metod
-	
+
 	private void addMilestone() {
 		Calendar proposedDate;
-		
+
 		updateAllMilestones();
-		
+
 		// First find out proposed year
 		if(allMilestoneDates.isEmpty()) {
 			proposedDate = new MileStone();
@@ -522,7 +521,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 
 		new GetMilestoneDateUI(this, proposedDate);
-		
+
 	}
 
 	private void handleCommand(String command) {
@@ -559,13 +558,13 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				utskriftsPanel.add(utskriftsLabel[i][j]);
 			}
 	}
-	
+
 	public double setValue(double value, String unit, String typ, int rad, int column, int decimalCount) {
 		double roundedValue;
 		if (decimalCount == 0) {
 			roundedValue = Math.round(value);
 		} else {
-			roundedValue = Math.round(value * (double)decimalCount * (double)10) / (double)(decimalCount * 10);
+			roundedValue = Math.round(value * decimalCount * 10) / (double)(decimalCount * 10);
 		}
 		if (unit == null) {
 			setText(roundedValue, typ, rad, column);
@@ -574,13 +573,9 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 		return roundedValue;
 	}
-	
-	private static double round(double value, int decimalCount) {
-		return Math.round(value * (double)decimalCount * (double)10) / (double)(decimalCount * 10);
-	}
 
 	public void setColoredValue(double value, String unit, String typ, int rad, int column, int decimalCount) {
-		
+
 		double roundedValue = setValue(value, unit, typ, rad, column, decimalCount);
 		if(roundedValue > 0){
 			utskriftsLabel[rad][column].setForeground(greenText);
@@ -590,7 +585,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			utskriftsLabel[rad][column].setForeground(blackText);
 		}
 	}
-	
+
 	public void setText(Object text, String typ, int rad, int kolumn) {
 		String textString = "";
 		String firstPart;
@@ -612,7 +607,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				secondPart = textString.substring(length - 7, length);
 				textString = firstPart + " " + secondPart;
 			}
-			
+
 		} else if (text instanceof Double) {
 			textString = text.toString();
 			// length is here the length before first dot
@@ -644,10 +639,10 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		utskriftsLabel[rad][kolumn].setText(textString);
 		return;
 	}
-	
+
 	private void showYearChooserUI() {
 		MileStone[] possibleChoises = new MileStone[allMilestoneDates.size() + 1];
-		
+
 		for (int i = 0; i < allMilestoneDates.size(); i++) {
 			possibleChoises[i] = allMilestoneDates.get(i);
 		}
@@ -673,12 +668,12 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 		all.updateTotal(from, to);
 	}
-	
+
 	public void updateAllMilestones() {
 		// TODO Test this one
 		ValuePost valuePost;
 		Vector<MileStone> mileStones;
-		
+
 		for (Post rootPost : workspace.poster) {
 			if(rootPost instanceof ValuePost){
 				valuePost = (ValuePost)rootPost;
@@ -696,7 +691,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			}
 		}
 	}
-	
+
 	private void setToAllMilestones(MileStone milestone) {
 		if(allMilestoneDates.isEmpty()) {
 			allMilestoneDates.add(milestone);
@@ -712,7 +707,23 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			}
 		}
 	}
-	
+
+	public void adjustValue(String postName, double amount, Calendar date) {
+	    for (Post rootPost : workspace.poster) {
+	        if(rootPost instanceof Grupp) {
+	            if(((Grupp)rootPost).contains(postName)){
+	                ((Grupp)rootPost).adjustValue(postName, date, amount);
+	            }
+	        } else {
+	            if ((rootPost.getName()).equals(postName)) {
+	                ((ValuePost) rootPost).adjustValue(date, amount);
+	            }
+	        }
+	    }
+	    updateTotal();
+	    uppdateraUtskriftsPanelen();
+	}
+
 	public void ins(String postName, double amount, Calendar date, String comment) {
 		// TODO Test this one
 		all.addHappening(null, date, amount, comment);
@@ -722,7 +733,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 					((Grupp)rootPost).addHappening(postName, date, amount, comment);
 				}
 			} else {
-				if ((((Post) rootPost).getName()).equals(postName)) {
+				if ((rootPost.getName()).equals(postName)) {
 					((ValuePost) rootPost).addHappening(date,
 							amount, comment);
 					log("\nInsättning har registrerats. \nBelopp: "
@@ -733,7 +744,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 		uppdateraUtskriftsPanelen();
 	}
-	
+
 	public boolean isGroup(int index) {
 		if (workspace.poster.elementAt(index) instanceof Grupp)
 			return true;
@@ -747,17 +758,17 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		Calendar to = workspace.showTo;
 
 		titleLabel.setText(CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
-		
+
 		log("Procentuell utveckling under perioden:");
-		
+
 		double allValue = all.getValue(to);
 		double allValueStart = all.getValue(from);
 		double allTransactions = all.getTotalAmount(from, to) - allValueStart;
 		double allRevenue = allValue - allTransactions - allValueStart;
 		log("Totalt: " + round((100 * allRevenue / (allValueStart + allTransactions))) + " %");
-		
+
 		int antal = workspace.poster.size();
-		
+
 		for (int i = 0; i < antal; i++) {
 			Post currentPost = workspace.poster.get(i);
 			if (currentPost.isActive(from, to)) {
@@ -771,7 +782,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			}
 		}
 
-		
+
 		int offset = 2; // "Dynamic" values start at row with index 2
 		// ******************************* Name ****************************************
 		int c = 0;
@@ -926,7 +937,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 					((Grupp)rootPost).addHappening(postName, date, amount, comment);
 				}
 			} else {
-				if ((((Post) rootPost).getName()).equals(postName)) {
+				if ((rootPost.getName()).equals(postName)) {
 					((ValuePost) rootPost).addHappening(date,
 							amount, comment);
 					log("\nUttag har registrerats. \nBelopp: "
@@ -937,27 +948,27 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		}
 		uppdateraUtskriftsPanelen();
 	}
-	
+
 	public void transaction(String from, String to, double amount, Calendar date, String comment) {
 		all.addHappening(null, date, amount, comment);
 		all.addHappening(null, date, (-1 * amount), comment);
 		Grupp currentGroup;
 		for (Post rootPost : workspace.poster) {
 			if (rootPost instanceof Grupp) {
-				currentGroup = (Grupp)rootPost;	
+				currentGroup = (Grupp)rootPost;
 				if (currentGroup.contains(from)) {
 					currentGroup.addHappening(from, date, (-1 * amount), comment);
 					log("\nUttag har registrerats. \nBelopp: "
 							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nPost:  "
 							+ from + "\nKommentar:" + comment + "\n");
-				
+
 				}
 				if (currentGroup.contains(to)) {
 					currentGroup.addHappening(to, date, amount, comment);
 					log("\nInsättning har registrerats. \nBelopp: "
 							+ amount + " kr\nDatum: " + CalendarUtil.getShortString(date) + "\nPost:  "
 							+ to + "\nKommentar:" + comment + "\n");
-				
+
 				}
 			} else {
 				if (rootPost.getName().equals(from)) {
@@ -997,20 +1008,20 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			log("\nDet finns inga poster att visa");
 			return;
 		}
-		
-		
-		
+
+
+
 		log("\n\nEkonomisk situation för perioden ");
 		log(CalendarUtil.getShortString(from) + " - " + CalendarUtil.getShortString(to));
-		
+
 		//List<List<String>> rows = new LinkedList<List<String>>();
-		
+
 //		List<String> row1 = new LinkedList<String>();
-//		
+//
 //		// ******************************* Name ****************************************
-//		
+//
 //		for (Post rootPost : workspace.poster) {
-//			
+//
 //			rows.add(new LinkedList<String>)rootPost.getName());
 //			rows.
 //			if (rootPost instanceof Grupp) {
@@ -1074,22 +1085,15 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 //			}
 //		}
 //		log(Math.round(all.getValue(to) - all.getTotalAmount(from, to)) + "\n\n");
-//		
-//		
-		
+//
+//
+
 		for (int  i = 0 ; i < antalRader; i++) {
 			for (int j = 0; j < antalKolumner; j++) {
 				textArean.append(utskriftsLabel[i][j].getText() + "\t");
 			}
 			textArean.append("\n");
 		}
-	}
-	
-	private String ellipsize(String stringToEllipsize, int length){
-		if(stringToEllipsize.length() <= length + 1)
-			return stringToEllipsize;
-		
-		return stringToEllipsize.substring(0,length) + ".";
 	}
 
 	public void skapaGrupp(String namn) {
@@ -1110,12 +1114,12 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		} else {
 			workspace.poster.add(0,newPost);
 		}
-		
+
 		all.addPost(newPost);
 		all.addHappening(null, date, belopp, "");
 		uppdateraUtskriftsPanelen();
 	}
-	
+
 	public void createRawMaterialPost(String name, double price, double weight, Calendar date,
 			String groupName) {
 		// TODO Test this one
@@ -1129,12 +1133,12 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		} else {
 			workspace.poster.add(0,newPost);
 		}
-		
+
 		all.addPost(newPost);
 		all.addHappening(null, date, price * weight, "");
 		uppdateraUtskriftsPanelen();
 	}
-	
+
 	public void createStockPost(String name, int count, double price, Calendar date,
 			URL url, String groupName) {
 		// TODO Test this one
@@ -1152,7 +1156,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		all.addHappening(null, date, count * price, "");
 		uppdateraUtskriftsPanelen();
 	}
-	
+
 	public Grupp getGroup(String name) {
 		for (Post rootPost : workspace.poster) {
 			if (rootPost instanceof Grupp && rootPost.getName().equals(name))
@@ -1207,7 +1211,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			}
 		}// for
 	}// metod
-	
+
 	private void logHappenings(ValuePost postToPrint, Calendar from, Calendar to) {
 		log("\n" + "Förtydligande av insättningar och uttag för "
 				+ postToPrint.getName() + "\n");
@@ -1221,8 +1225,8 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				log(happening.getKommentar() + "\n");
 			}
 		}// for
-		
-	} 
+
+	}
 
 	public boolean isPostName(String name) {
 		for (Post rootPost : workspace.poster) {
@@ -1252,7 +1256,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			}
 		}
 	};
-	
+
 	private void saveWorkspace() throws JSONException, URISyntaxException, IOException {
 		try {
 			String filePath = SavedData.getLastSavedWorkspace();
@@ -1262,7 +1266,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			saveWorkspaceAs();
 		}
 	}
-	
+
 	private void saveWorkspaceAs() throws JSONException, URISyntaxException, IOException {
 		SavedData.setLastSavedWorkspace(FileUtil.writeJsonToUserSpecifiedFile(
 				getContentPane(), workspace.getJson()));
@@ -1272,9 +1276,9 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			ioe.printStackTrace();
 		}
 	}
-	
 
-	
+
+
 	private void openLastUsedWorkspace() {
 		try {
 			SavedData.load(this);
@@ -1305,7 +1309,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		updateAllMilestones();
 		uppdateraUtskriftsPanelen();
 	}
-	
+
 	private void printAllMilestones() {
 		log("Visar alla milstolpar: ");
 		Vector<Post> rootPosts = workspace.poster;
@@ -1333,7 +1337,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 			}
 		}
 	}
-	
+
 	public void setFilterDates(Calendar from, Calendar to) {
 		workspace.showFrom = from;
 		workspace.showTo = to;
@@ -1341,7 +1345,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		updateTotal();
 		uppdateraUtskriftsPanelen();
 	}
-	
+
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		KalkylUI kalkylUI = new KalkylUI();
 		kalkylUI.openLastUsedWorkspace();
@@ -1364,11 +1368,11 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		//updateAllMilestones();
 		//updateTotal();
 		//uppdateraUtskriftsPanelen();
-		
-		
-		
-		
-		
+
+
+
+
+
 		Vector<Post> rootPosts = workspace.poster;
 		Post rootPost;
 		for(int i = 0; i < rootPosts.size(); i++) {
@@ -1381,41 +1385,40 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 				((ValuePost)rootPosts.elementAt(i)).addMileStone(date);
 			}
 		}
-		
-		
+
+
 		updateAllMilestones();
 		updateTotal();
 		uppdateraUtskriftsPanelen();
-		
+
 	}
 
-	
+
 	/* (non-Javadoc)
 	 * @see com.roberthelmbro.economy.DataUpdateListener#removeTransaction(java.lang.String, java.util.Calendar, double)
 	 */
 	public void removeTransaction(String postName, Calendar date, double amount) {
-		// TODO Test this one
 		getValuePost(postName).deleteHappening(date, amount);
 		updateTotal();
 		uppdateraUtskriftsPanelen();
 	}
-	
+
 	public void removeMilestone(String post, Calendar date) {
-		// TODO Test this one
-		getValuePost(post).deleteMilestone(date);
+	    // TODO Test this one
+	    getValuePost(post).deleteMilestone(date);
 		updateTotal();
 		uppdateraUtskriftsPanelen();
 	}
-	
+
 	private double interestToday = 0;
 	public void reportInterest (String name, double add) {
 		interestToday += add;
 		log("Ränta inrapporterad");
 		log("Post: " + name);
 		log("Ränta: " + add);
-		log("Totalt hittils: " + interestToday);  
+		log("Totalt hittils: " + interestToday);
 	}
-	
+
 	public void log(String message) {
 		textArean.append(message + "\n");
 		JViewport vp = textAreaScrollPane.getViewport();
@@ -1423,5 +1426,5 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 		visible.y = 99999999/*Just a big value*/;
 		vp.scrollRectToVisible(visible);
 	}
-	
+
 }// class

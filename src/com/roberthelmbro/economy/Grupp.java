@@ -1,7 +1,7 @@
 package com.roberthelmbro.economy;
 
 /**
- * @author Robert Helmbro 
+ * @author Robert Helmbro
  */
 
 import java.net.MalformedURLException;
@@ -29,24 +29,24 @@ public class Grupp extends Post {
 	}
 
 	public Grupp(JSONObject json) throws JSONException, MalformedURLException {
-		super("");		
+		super("");
 		JSONArray jPoster = json.getJSONArray("poster");
 		for (int i = 0; i < jPoster.length(); i++) {
 			switch((String)jPoster.getJSONObject(i).get("class")) {
-			case "KontoPost": 
+			case "KontoPost":
 				poster.add(new KontoPost(jPoster.getJSONObject(i)));
 				break;
-			case "RawMaterialPost": 
+			case "RawMaterialPost":
 				poster.add(new RawMaterialPost(jPoster.getJSONObject(i)));
 				break;
-			case "AktiePost": 
+			case "AktiePost":
 				poster.add(new AktiePost(jPoster.getJSONObject(i)));
 				break;
 			};
 		}
 		name = json.getString("name");
 	}
-	
+
 	@Override
 	public JSONObject getJson() throws JSONException {
 		JSONObject json = new JSONObject();
@@ -68,7 +68,7 @@ public class Grupp extends Post {
 	public Vector<ValuePost> getPoster() {
 		return poster;
 	}
-	
+
 	public List<ValuePost> getPosts(Calendar from, Calendar to) {
 		List<ValuePost> posts = new LinkedList<ValuePost>();
 		for (ValuePost post : poster) {
@@ -78,7 +78,7 @@ public class Grupp extends Post {
 		}
 		return posts;
 	}
-	
+
 	public boolean contains(String label) {
 		for(int i = 0; i < poster.size(); i++){
 			if(poster.get(i).name.equals(label)) {
@@ -90,7 +90,7 @@ public class Grupp extends Post {
 
 	public void removePost(String name) {
 		for (int i = 0; i < poster.size(); i++) {
-			
+
 			if (poster.elementAt(i).getName().equals(name))
 				poster.remove(i);
 		}
@@ -104,7 +104,7 @@ public class Grupp extends Post {
 		}
 		return sum;
 	}
-	
+
 	@Override
 	public double getValue(Calendar date) {
 		double sum = 0;
@@ -113,7 +113,7 @@ public class Grupp extends Post {
 		}
 		return sum;
 	}
-	
+
 	@Override
 	public double getLatestValue() {
 		double sum = 0;
@@ -122,7 +122,7 @@ public class Grupp extends Post {
 		}
 		return sum;
 	}
-	
+
 	@Override
 	public double getMilestoneValue(Calendar date) {
 
@@ -132,13 +132,13 @@ public class Grupp extends Post {
 		}
 		return sum;
 	}
-	
+
 	public boolean isMilestoneDate(Calendar cal) {
 		for (MileStone milestone : total.getMilestones()) {
 			if(milestone.getTimeInMillis() == cal.getTimeInMillis()) {
 				return true;
 			}
-		} 
+		}
 		return false;
 	}
 
@@ -169,15 +169,15 @@ public class Grupp extends Post {
 			double tempValue = post.getLatestValue();
 			tempDate = post.getLastUppdateDate();
 			totalValue += tempValue;
-			
+
 			// Update milestones
 			fromMileStoneValue += post.getMilestoneValue(from);
 			toMileStoneValue += post.getMilestoneValue(to);
-			
+
 		}
 		total.setMilestone(from, fromMileStoneValue);
 		total.setMilestone(to, toMileStoneValue);
-		
+
 		total.setValue(tempDate, totalValue);
 	}
 
@@ -185,17 +185,27 @@ public class Grupp extends Post {
 		double totalValue = 0;
 		Calendar tempDate = null;
 		for (int i = 0; i < poster.size(); i++) {
-			totalValue += ((ValuePost) poster.elementAt(i)).getLatestValue();
-			tempDate = ((ValuePost) poster.elementAt(i)).getLastUppdateDate();
+			totalValue += poster.elementAt(i).getLatestValue();
+			tempDate = poster.elementAt(i).getLastUppdateDate();
 		}
 		total.setValue(tempDate, totalValue);
 	}
-	
+
 	@Override
 	public double getInterest(Calendar from, Calendar to) {
 		double returnValue = total.getInterest(from, to);
 		return returnValue;
-		
+
+	}
+
+	public void adjustValue(String name, Calendar date, double amount) {
+	    if (name != null) {
+            for (ValuePost post : poster) {
+                if (post.getName().equals(name)) {
+                    post.adjustValue(date, amount);
+                }
+            }
+        }
 	}
 
 	public void addHappening(String name, Calendar date, double amount, String comment) {
@@ -208,11 +218,11 @@ public class Grupp extends Post {
 		}
 		total.addHappening(date, amount, "");
 	}
-	
+
 	public List<Happening> getHappenings(Calendar from, Calendar to) {
 		return total.getHappenings(from, to);
 	}
-	
+
 	public boolean isActive(Calendar from, Calendar to) {
 		// Check number of happenings
 		if (getHappenings(from, to).size() > 0) {
