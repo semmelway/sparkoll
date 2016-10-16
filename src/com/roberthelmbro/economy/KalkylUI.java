@@ -19,7 +19,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Vector;
@@ -1140,7 +1139,7 @@ public class KalkylUI extends JFrame implements ActionListener, GetMilestoneDate
 	}
 
 	public void createStockPost(String name, int count, double price, Calendar date,
-			URL url, String groupName) {
+			String url, String groupName) {
 		// TODO Test this one
 		AktiePost newStock = new AktiePost(name, groupName, count, price, date, url);
 		newStock.setValue(CalendarUtil.getTodayCalendarWithClearedClock(), price * count);

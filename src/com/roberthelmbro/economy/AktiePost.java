@@ -26,11 +26,11 @@ public class AktiePost extends ValuePost {
 	
 	double kurs;
 	int antal;
-	private URL uppdateringsUrl=null;
+	private String uppdateringsUrl=null;
 
 	
 	//konstruktor
-	public AktiePost(String namn, String groupName, int antal, double kurs, Calendar date, URL url)
+	public AktiePost(String namn, String groupName, int antal, double kurs, Calendar date, String url)
 	{
 		super(namn, groupName);
 		lastUppdateDate=date;
@@ -60,7 +60,7 @@ public class AktiePost extends ValuePost {
 		}
 		kurs = json.getDouble("kurs");
 		antal = json.getInt("antal");
-		uppdateringsUrl = new URL(json.getString("uppdateringsUrl"));
+		uppdateringsUrl = json.getString("uppdateringsUrl");
 	}
 	
 	@Override
@@ -143,7 +143,7 @@ public class AktiePost extends ValuePost {
 		
 		BufferedReader buffer= null;
 		try {
-			InputStream inputStream = uppdateringsUrl.openStream();
+			InputStream inputStream = new URL(uppdateringsUrl).openStream();
 			InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
 			buffer = new BufferedReader(inputStreamReader);
 			return buffer.readLine();
@@ -160,7 +160,7 @@ public class AktiePost extends ValuePost {
 		return antal;
 	}
 	
-	public void setUpdateUrl(URL url){
+	public void setUpdateUrl(String url){
 		uppdateringsUrl = url;
 	}
 	
@@ -168,7 +168,7 @@ public class AktiePost extends ValuePost {
 		return kurs;
 	}
 
-	public URL getUpdateUrl() {
+	public String getUpdateUrl() {
 		return uppdateringsUrl;
 	}
 	

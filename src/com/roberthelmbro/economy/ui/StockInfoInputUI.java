@@ -173,7 +173,7 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 			
 
 
-			URL url = createUrl(urlT.getText());
+			String url = urlT.getText();
 			
 			switch(type) {
 			case NEW_STOCK:
@@ -213,15 +213,6 @@ public class StockInfoInputUI extends JFrame implements ActionListener {
 		return false;
 	}
 	
-	private URL createUrl(String url){
-		URL tempURL=null;
-		try{
-		if(url.length() != 0)
-			tempURL = new URL(url);
-		}catch (MalformedURLException ee){tempURL=null;}
-		return tempURL;
-		
-	}
 	
 }//class
 
